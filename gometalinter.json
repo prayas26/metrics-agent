@@ -1,0 +1,18 @@
+{
+    "Enable": [
+        "megacheck",
+        "ineffassign",
+        "misspell",
+        "nakedret",
+        "gosec",
+        "golint",
+        "goconst",
+        "unused",
+        "deadcode",
+        "vet",
+        "gosimple"
+    ],
+    "Vendor": true,
+    "Deadline": "60s",
+    "Aggregate": true
+}

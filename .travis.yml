@@ -1,0 +1,41 @@
+language: go
+
+sudo: false
+
+matrix:
+  include:
+    - go: 1.x
+      env: LATEST=true
+    - go: 1.11.x
+    - go: tip
+  allow_failures:
+    - go: tip
+
+# Use gox to simplify building for multiple architectures.
+before_install:
+  - go get github.com/mitchellh/gox
+  - go get -u github.com/golang/dep/...
+  - dep ensure
+
+install:
+  - skip
+
+script:
+  - make ci
+  # Only build binaries from the latest Go release.
+  - if [ "${LATEST}" = "true" ]; then make build; fi
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    # Encrypted GitHub key, as the output of the Travis CI CLI tool.
+    secure: XXX
+  file:
+  # The names of the binaries to output, based on the -output template passed to gox.
+  - node_collector_linux_amd64
+  - node_collector_linux_386
+  on:
+    repo: digitalocean/node_collector
+    tags: true
+    condition: $LATEST = true
