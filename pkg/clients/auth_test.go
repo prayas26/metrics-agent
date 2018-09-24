@@ -91,3 +91,26 @@ func TestAppKeyIdentifiesInvalidRequest(t *testing.T) {
 	require.True(t, called, "http request was not made")
 	require.Equal(t, ErrInvalidToken, err)
 }
+
+func TestAppKeyProperlyParsesKey(t *testing.T) {
+	token := fmt.Sprintf("%d", time.Now().UnixNano())
+	// app key returned for the droplet comes as a string in the body
+	// For Example:
+	//   body: '"the_key_here"\n'
+	// it needs to be stripped and the quotes need to be removed
+	key := `"thekey"`
+	var actual string
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, key)
+		// append a new line to ensure that it's stripped
+		fmt.Fprintln(w, "")
+	}))
+	defer srv.Close()
+
+	subject := NewAuthenticator(srv.Client(), srv.URL)
+	actual, err := subject.AppKey(context.TODO(), token)
+	require.NoError(t, err)
+	expected := "thekey"
+	require.Equal(t, expected, actual)
+}

@@ -71,6 +71,5 @@ func (a *Authenticator) AppKey(ctx context.Context, token string) (string, error
 	if strings.Contains(key, invalid) {
 		return "", ErrInvalidToken
 	}
-
-	return key, nil
+	return strings.Trim(strings.TrimSpace(key), `"`), err
 }
