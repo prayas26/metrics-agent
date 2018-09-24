@@ -27,6 +27,7 @@ import (
 	"github.com/digitalocean/node_collector/pkg/clients/timeseries"
 	"github.com/digitalocean/node_collector/pkg/collector"
 	"github.com/digitalocean/node_collector/pkg/decorate"
+	"github.com/digitalocean/node_collector/pkg/decorate/compat"
 	"github.com/digitalocean/node_collector/pkg/writer"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -96,7 +97,8 @@ func initWriter(ctx context.Context) (metricWriter, throttler) {
 
 func initDecorator() decorate.Chain {
 	return decorate.Chain{
-		decorate.Compat{},
+		compat.Names{},
+		compat.Disk{},
 		decorate.LowercaseNames{},
 	}
 }

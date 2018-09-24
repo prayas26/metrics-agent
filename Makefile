@@ -35,11 +35,22 @@ project := $(notdir $(CURDIR))
 importpath := github.com/digitalocean/$(project)
 gofiles := $(call find,go)
 
+# the name of the binary built with local resources
+local_binary := $(out)/$(project)_$(GOOS)_$(GOARCH)
+
 #############
 ## targets ##
 #############
 
-build: $(out)/$(project)
+build: $(local_binary)
+$(local_binary): $(gofiles)
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) \
+	     go build \
+		-ldflags $(ldflags) \
+	     	-o "$@" \
+		./cmd/node_collector
+
+release: $(out)/$(project)
 $(out)/$(project): $(gofiles)
 	$(print)
 	@gox -os="linux" -arch="amd64 386" \

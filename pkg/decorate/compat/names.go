@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package decorate
+package compat
 
 import (
 	"strings"
@@ -21,10 +21,9 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
-var conversions = map[string]string{
+// nameConversions is a list of metrics which differ only in name
+var nameConversions = map[string]string{
 	"node_cpu_seconds_total":            "sonar_cpu",
-	"node_disk_read_bytes_total":        "sonar_disk_sectors_read",
-	"node_disk_written_bytes_total":     "sonar_disk_sectors_written",
 	"node_network_receive_bytes_total":  "sonar_network_receive_bytes",
 	"node_network_transmit_bytes_total": "sonar_network_transmit_bytes",
 	"node_memory_memtotal_bytes":        "sonar_memory_total",
@@ -37,20 +36,24 @@ var conversions = map[string]string{
 	"node_load15":                       "sonar_load15",
 }
 
-// Compat decorates metrics to be backwards compatible with do-agent
-type Compat struct{}
+// Names converts node_exporter metric names to sonar names
+type Names struct{}
 
 // Name is the name of this decorator
-func (Compat) Name() string {
-	return "compat"
+func (Names) Name() string {
+	return "names"
 }
 
 // Decorate decorates the provided metrics for compatibility
-func (Compat) Decorate(mfs []*dto.MetricFamily) {
+func (Names) Decorate(mfs []*dto.MetricFamily) {
 	for _, mf := range mfs {
 		n := strings.ToLower(mf.GetName())
-		if newName, ok := conversions[n]; ok {
+		if newName, ok := nameConversions[n]; ok {
 			mf.Name = &newName
 		}
 	}
+}
+
+func sptr(s string) *string {
+	return &s
 }

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package decorate
+package compat
 
 import (
 	"strings"
@@ -24,12 +24,12 @@ import (
 )
 
 func TestCompatConvertsLabels(t *testing.T) {
-	for old, new := range conversions {
+	for old, new := range nameConversions {
 		t.Run(old, func(t *testing.T) {
 			mfs := []*dto.MetricFamily{
 				{Name: &old},
 			}
-			Compat{}.Decorate(mfs)
+			Names{}.Decorate(mfs)
 
 			assert.Equal(t, new, mfs[0].GetName())
 		})
@@ -37,14 +37,18 @@ func TestCompatConvertsLabels(t *testing.T) {
 }
 
 func TestCompatIsCaseInsensitive(t *testing.T) {
-	for old, new := range conversions {
+	for old, new := range nameConversions {
 		t.Run(old, func(t *testing.T) {
 			mfs := []*dto.MetricFamily{
 				{Name: sptr(strings.ToUpper(old))},
 			}
-			Compat{}.Decorate(mfs)
+			Names{}.Decorate(mfs)
 
 			assert.Equal(t, new, mfs[0].GetName())
 		})
 	}
+}
+
+func TestNamesHasName(t *testing.T) {
+	assert.NotEmpty(t, Names{}.Name())
 }

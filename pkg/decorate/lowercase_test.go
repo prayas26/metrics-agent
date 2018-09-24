@@ -10,22 +10,13 @@ import (
 
 func TestLowercaseNamesChangesLabels(t *testing.T) {
 	d := LowercaseNames{}
+
+	actual := "JKLKJSFDJKLjkasdfjklasdf"
+	expected := strings.ToLower(actual)
+
 	items := []*dto.MetricFamily{
-		&dto.MetricFamily{
-			Name: sptr("JKLKJSFDJKLjkasdfjklasdf"),
-		},
-		&dto.MetricFamily{
-			Name: sptr("BLUE"),
-		},
+		&dto.MetricFamily{Name: &actual},
 	}
-
 	d.Decorate(items)
-
-	for _, mf := range items {
-		assert.Equal(t, strings.ToLower(mf.GetName()), mf.GetName())
-	}
-}
-
-func sptr(s string) *string {
-	return &s
+	assert.Equal(t, expected, items[0].GetName())
 }
