@@ -24,7 +24,8 @@ import (
 var conversions = map[string]string{
 	"node_cpu_seconds_total":            "sonar_cpu",
 	"node_disk_read_bytes_total":        "sonar_disk_sectors_read",
-	"node_disk_write_bytes_total":       "sonar_network_receive_bytes",
+	"node_disk_written_bytes_total":     "sonar_disk_sectors_written",
+	"node_network_receive_bytes_total":  "sonar_network_receive_bytes",
 	"node_network_transmit_bytes_total": "sonar_network_transmit_bytes",
 	"node_memory_memtotal_bytes":        "sonar_memory_total",
 	"node_memory_memfree_bytes":         "sonar_memory_free",
