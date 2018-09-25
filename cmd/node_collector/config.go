@@ -99,6 +99,7 @@ func initDecorator() decorate.Chain {
 	return decorate.Chain{
 		compat.Names{},
 		compat.Disk{},
+		compat.CPU{},
 		decorate.LowercaseNames{},
 	}
 }

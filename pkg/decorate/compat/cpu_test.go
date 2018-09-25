@@ -42,7 +42,7 @@ func TestCPUChangesLabelValues(t *testing.T) {
 		dec := CPU{}
 
 		cpu := i
-		expected := fmt.Sprintf("cpu%d", cpu+1)
+		expected := fmt.Sprintf("cpu%d", cpu)
 		t.Run(expected, func(t *testing.T) {
 			v := 1.0
 			metric := dto.Metric{
@@ -91,7 +91,7 @@ func TestCPUUpdatesAllLabels(t *testing.T) {
 	CPU{}.Decorate(mfs)
 
 	for i, mf := range mfs {
-		expected := fmt.Sprintf("cpu%d", i+1)
+		expected := fmt.Sprintf("cpu%d", i)
 		assert.EqualValues(t, expected, mf.GetMetric()[0].Label[0].GetValue())
 	}
 }
@@ -180,7 +180,7 @@ func TestCPUSkipsWhenFailsParsingCPUNumber(t *testing.T) {
 	dec.Decorate(mfs)
 
 	assert.EqualValues(t, "not a number", metric.Label[0].GetValue())
-	assert.EqualValues(t, "cpu2", metric.Label[1].GetValue())
+	assert.EqualValues(t, "cpu1", metric.Label[1].GetValue())
 }
 
 func TestCPUHasName(t *testing.T) {

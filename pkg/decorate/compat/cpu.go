@@ -51,7 +51,7 @@ func (CPU) Decorate(mfs []*dto.MetricFamily) {
 					continue
 				}
 
-				l.Value = sptr(fmt.Sprintf("cpu%d", num+1))
+				l.Value = sptr(fmt.Sprintf("cpu%d", num))
 			}
 		}
 	}
