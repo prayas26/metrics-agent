@@ -50,5 +50,5 @@ func TestCompatIsCaseInsensitive(t *testing.T) {
 }
 
 func TestNamesHasName(t *testing.T) {
-	assert.NotEmpty(t, Names{}.Name())
+	assert.Equal(t, "compat.Names", Names{}.Name())
 }

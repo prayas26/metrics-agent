@@ -16,6 +16,7 @@
 package compat
 
 import (
+	"fmt"
 	"strings"
 
 	dto "github.com/prometheus/client_model/go"
@@ -23,7 +24,6 @@ import (
 
 // nameConversions is a list of metrics which differ only in name
 var nameConversions = map[string]string{
-	"node_cpu_seconds_total":            "sonar_cpu",
 	"node_network_receive_bytes_total":  "sonar_network_receive_bytes",
 	"node_network_transmit_bytes_total": "sonar_network_transmit_bytes",
 	"node_memory_memtotal_bytes":        "sonar_memory_total",
@@ -40,8 +40,8 @@ var nameConversions = map[string]string{
 type Names struct{}
 
 // Name is the name of this decorator
-func (Names) Name() string {
-	return "names"
+func (n Names) Name() string {
+	return fmt.Sprintf("%T", n)
 }
 
 // Decorate decorates the provided metrics for compatibility

@@ -75,5 +75,5 @@ func TestDiskConvertsBytesToSectors(t *testing.T) {
 }
 
 func TestDiskHasName(t *testing.T) {
-	assert.NotEmpty(t, Disk{}.Name())
+	assert.Equal(t, "compat.Disk", Disk{}.Name())
 }

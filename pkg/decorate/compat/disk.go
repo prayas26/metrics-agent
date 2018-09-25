@@ -16,6 +16,7 @@
 package compat
 
 import (
+	"fmt"
 	"strings"
 
 	dto "github.com/prometheus/client_model/go"
@@ -27,8 +28,8 @@ const diskSectorSize = float64(512)
 type Disk struct{}
 
 // Name is the name of this decorator
-func (Disk) Name() string {
-	return "disk"
+func (d Disk) Name() string {
+	return fmt.Sprintf("%T", d)
 }
 
 // Decorate converts bytes to sectors
