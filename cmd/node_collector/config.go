@@ -42,20 +42,13 @@ var (
 		stdoutOnly  bool
 	}
 
-	// unsupportedCollectors is a list of collectors currently unsupported
-	// by DigitalOcean. These will be elided by the server so enabling them
-	// will be pointless.
-	unsupportedCollectors = []string{"arp", "bcache", "bonding",
-		"buddyinfo", "conntrack", "drbd", "edac", "entropy", "filefd",
-		"hwmon", "infiniband", "interrupts", "ipvs", "ksmd", "logind",
-		"mdadm", "meminfo_numa", "mountstats", "netdev", "netstat",
-		"nfs", "nfsd", "ntp", "qdisc", "runit", "sockstat", "supervisord",
-		"systemd", "tcpstat", "textfile", "wifi", "xfs", "zfs", "timex",
-	}
-
 	// additionalParams is a list of extra command line flags to append
 	// this is mostly needed for appending node_exporter flags when necessary.
 	additionalParams = []string{}
+
+	// disabledCollectors is a hash used by disableCollectors to prevent
+	// duplicate entries
+	disabledCollectors = map[string]interface{}{}
 )
 
 const (
@@ -151,4 +144,26 @@ func initCollectors() []prometheus.Collector {
 	cols = append(cols, node)
 
 	return cols
+}
+
+// disableCollectors disables collectors by names by adding a list of
+// --no-collector.<name> flags to additionalParams
+func disableCollectors(names ...string) {
+	f := []string{}
+	for _, name := range names {
+		if _, ok := disabledCollectors[name]; ok {
+			// already disabled
+			continue
+		}
+
+		disabledCollectors[name] = nil
+		f = append(f, disableCollectorFlag(name))
+	}
+
+	additionalParams = append(additionalParams, f...)
+}
+
+// disableCollectorFlag creates the correct cli flag for the given collector name
+func disableCollectorFlag(name string) string {
+	return fmt.Sprintf("--no-collector.%s", name)
 }
