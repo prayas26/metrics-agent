@@ -37,8 +37,6 @@ gofiles := $(call find,go)
 
 # the name of the binary built with local resources
 local_binary := $(out)/$(project)_$(GOOS)_$(GOARCH)
-systemdconfig := packaging/lib/systemd/system/node_collector.service
-systemd := $(out)/systemd/$(project).service
 
 #############
 ## targets ##
@@ -59,12 +57,6 @@ $(out)/$(project): $(gofiles)
 		-ldflags $(ldflags) \
 		-output "$@_{{.OS}}_{{.Arch}}" \
 		./cmd/node_collector
-
-systemd: $(systemd)
-$(systemd): $(systemdconfig)
-	$(print)
-	$(mkdir)
-	cp $(systemdconfig) $@
 
 lint: $(cache)/lint
 $(cache)/lint: $(gofiles)
