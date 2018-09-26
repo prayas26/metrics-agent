@@ -36,6 +36,7 @@ var (
 		"devpts", "devtmpfs", "ecryptfs", "efivarfs", "fuse",
 		"hugetlbfs", "mqueue", "nfs", "overlayfs", "proc", "pstore",
 		"rpc_pipefs", "securityfs", "smb", "sysfs", "tmpfs", "tracefs",
+		"squashfs",
 	}, `|`)
 
 	onceRegisterFilesystemFlags = new(sync.Once)

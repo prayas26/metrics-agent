@@ -20,7 +20,7 @@ func init() {
 	disableCollectors("arp", "bcache", "bonding", "buddyinfo", "conntrack",
 		"drbd", "edac", "entropy", "filefd", "hwmon", "infiniband",
 		"interrupts", "ipvs", "ksmd", "logind", "mdadm", "meminfo_numa",
-		"mountstats", "netclass", "netdev", "nfs", "nfsd", "ntp", "qdisc",
+		"mountstats", "netdev", "nfs", "nfsd", "ntp", "qdisc",
 		"runit", "sockstat", "supervisord", "systemd", "tcpstat",
 		"textfile", "time", "timex", "wifi", "xfs", "zfs",
 	)
