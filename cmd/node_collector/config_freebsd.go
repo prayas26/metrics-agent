@@ -17,7 +17,7 @@ package main
 
 func init() {
 	registerFilesystemFlags()
-	disableCollectors("boottime", "exec", "netdev", "ntp", "runit",
-		"supervisord", "textfile", "time",
+	disableCollectors("boottime", "exec", "ntp", "runit", "supervisord",
+		"textfile", "time",
 	)
 }
