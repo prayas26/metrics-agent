@@ -52,6 +52,10 @@ var (
 		"nfs", "nfsd", "ntp", "qdisc", "runit", "sockstat", "supervisord",
 		"systemd", "tcpstat", "textfile", "wifi", "xfs", "zfs", "timex",
 	}
+
+	// additionalParams is a list of extra command line flags to append
+	// this is mostly needed for appending node_exporter flags when necessary.
+	additionalParams = []string{}
 )
 
 const (

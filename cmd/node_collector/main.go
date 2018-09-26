@@ -17,7 +17,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -32,13 +31,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// disable collectors not supported by DigitalOcean. node_exporter
-	// requires setting flags to disable so we override any here
-	disableFlags := make([]string, len(unsupportedCollectors))
-	for i, c := range unsupportedCollectors {
-		disableFlags[i] = fmt.Sprintf("--no-collector.%s", c)
-	}
-	os.Args = append(os.Args, disableFlags...)
+	os.Args = append(os.Args, additionalParams...)
 
 	// parse all command line flags
 	kingpin.HelpFlag.Short('h')
