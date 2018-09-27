@@ -48,14 +48,14 @@ func TestCPUChangesLabelValues(t *testing.T) {
 			metric := dto.Metric{
 				Gauge: &dto.Gauge{Value: &v},
 				Label: []*dto.LabelPair{
-					&dto.LabelPair{
+					{
 						Name:  sptr("cpu"),
 						Value: sptr(fmt.Sprint(cpu)),
 					},
 				},
 			}
 			mfs := []*dto.MetricFamily{
-				&dto.MetricFamily{
+				{
 					Type:   &counterMetricType,
 					Name:   sptr(nodeExporterCPUName),
 					Metric: []*dto.Metric{&metric},
@@ -75,7 +75,7 @@ func TestCPUUpdatesAllLabels(t *testing.T) {
 		m := dto.Metric{
 			Gauge: &dto.Gauge{Value: &v},
 			Label: []*dto.LabelPair{
-				&dto.LabelPair{
+				{
 					Name:  sptr("cpu"),
 					Value: sptr(fmt.Sprint(i)),
 				},
@@ -105,14 +105,14 @@ func TestCPUDoesNotChangeOtherLabelValues(t *testing.T) {
 	metric := dto.Metric{
 		Gauge: &dto.Gauge{Value: &v},
 		Label: []*dto.LabelPair{
-			&dto.LabelPair{
+			{
 				Name:  sptr("notcpu"),
 				Value: sptr(expected),
 			},
 		},
 	}
 	mfs := []*dto.MetricFamily{
-		&dto.MetricFamily{
+		{
 			Type:   &counterMetricType,
 			Name:   sptr(nodeExporterCPUName),
 			Metric: []*dto.Metric{&metric},
@@ -131,14 +131,14 @@ func TestCPUDoesNotChangeOtherMetrics(t *testing.T) {
 	metric := dto.Metric{
 		Gauge: &dto.Gauge{Value: &v},
 		Label: []*dto.LabelPair{
-			&dto.LabelPair{
+			{
 				Name:  sptr("cpu"),
 				Value: sptr(expected),
 			},
 		},
 	}
 	mfs := []*dto.MetricFamily{
-		&dto.MetricFamily{
+		{
 			Type:   &counterMetricType,
 			Name:   sptr("something else"),
 			Metric: []*dto.Metric{&metric},
@@ -171,7 +171,7 @@ func TestCPUSkipsWhenFailsParsingCPUNumber(t *testing.T) {
 		},
 	}
 	mfs := []*dto.MetricFamily{
-		&dto.MetricFamily{
+		{
 			Type:   &counterMetricType,
 			Name:   sptr(nodeExporterCPUName),
 			Metric: []*dto.Metric{&metric},

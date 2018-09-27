@@ -15,7 +15,7 @@ func TestLowercaseNamesChangesLabels(t *testing.T) {
 	expected := strings.ToLower(actual)
 
 	items := []*dto.MetricFamily{
-		&dto.MetricFamily{Name: &actual},
+		{Name: &actual},
 	}
 	d.Decorate(items)
 	assert.Equal(t, expected, items[0].GetName())

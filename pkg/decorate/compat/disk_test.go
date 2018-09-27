@@ -62,7 +62,7 @@ func TestDiskConvertsBytesToSectors(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			mfs := []*dto.MetricFamily{
-				&dto.MetricFamily{
+				{
 					Type:   &counterMetricType,
 					Name:   &name,
 					Metric: []*dto.Metric{&metric},
