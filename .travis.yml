@@ -11,19 +11,23 @@ matrix:
   allow_failures:
     - go: tip
 
-# Use gox to simplify building for multiple architectures.
 before_install:
   - go get github.com/mitchellh/gox
   - go get -u github.com/golang/dep/...
-  - dep ensure
+  # coveralls.io deps
+  - go get golang.org/x/tools/cmd/cover github.com/mattn/goveralls
+  # install gometalinter
   - curl -L https://git.io/vp6lP | sh
-  - export PATH="$PWD/bin:$PATH"
+  # gometalinter installs to ./bin
+  - export PATH="$GOPATH/bin:$PWD/bin:$PATH"
+  - dep ensure
 
 install:
   - skip
 
 script:
   - make ci
+  - goveralls -coverprofile=target/.coverprofile -service=travis-ci -repotoken $COVERALLS_API_TOKEN
   # Only build binaries from the latest Go release.
   - if [ "${LATEST}" = "true" ]; then make build; fi
 

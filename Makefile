@@ -37,6 +37,7 @@ gofiles := $(call find,go)
 
 # the name of the binary built with local resources
 local_binary := $(out)/$(project)_$(GOOS)_$(GOARCH)
+cover_profile := $(out)/.coverprofile
 
 #############
 ## targets ##
@@ -44,7 +45,7 @@ local_binary := $(out)/$(project)_$(GOOS)_$(GOARCH)
 
 build: $(local_binary)
 $(local_binary): $(gofiles)
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) \
+	GOOS=$(GOOS) GOARCH=$(GOARCH) \
 	     go build \
 		-ldflags $(ldflags) \
 	     	-o "$@" \
@@ -52,23 +53,21 @@ $(local_binary): $(gofiles)
 
 release: $(out)/$(project)
 $(out)/$(project): $(gofiles)
-	$(print)
-	@gox -os="linux" -arch="amd64 386" \
+	gox -os="linux" -arch="amd64 386" \
 		-ldflags $(ldflags) \
 		-output "$@_{{.OS}}_{{.Arch}}" \
 		./cmd/node_collector
 
 lint: $(cache)/lint
 $(cache)/lint: $(gofiles)
-	$(print)
 	$(mkdir)
-	@gometalinter --config=gometalinter.json ./...
+	gometalinter --config=gometalinter.json ./...
 	$(touch)
 
-test: $(cache)/test
-$(cache)/test: $(gofiles)
+test: $(cover_profile)
+$(cover_profile): $(gofiles)
 	$(mkdir)
-	@go test ./...
+	go test -coverprofile=$@ ./...
 	$(touch)
 
 ci: lint test
