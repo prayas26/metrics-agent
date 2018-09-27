@@ -1,20 +1,11 @@
 # Node Collector
 
-DigitalOcean Node Collector
+**WIP Notice**
+
+DigitalOcean Node Collector is a work in progress
 
 [![Build
 Status](https://travis-ci.org/digitalocean/node_collector.svg?branch=master)](https://travis-ci.org/digitalocean/node_collector)
-[![GoDoc](https://godoc.org/github.com/digitalocean/node_collector?status.svg)](https://godoc.org/github.com/digitalocean/node_collector)
-
-Node Collector is the [do-agent](https://github.com/digitalocean/do-agent)
-successor. It's purpose is to collect metrics from droplets. It does this via
-[node_exporter](https://github.com/prometheus/node_exporter).
-
-## Metrics Collected
-
-By default, Node Collector will report all metrics enabled by default in
-node_exporter (see
-[here](https://github.com/prometheus/node_exporter/blob/master/README.md#enabled-by-default)).
 
 ## Development
 
@@ -34,7 +25,7 @@ cd !$
 make
 
 # add dependencies
-dep ensure -v -add <import path> ```
+dep ensure -v -add <import path>
 ```
 
 ## Installation
