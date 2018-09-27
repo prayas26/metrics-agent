@@ -5,11 +5,6 @@ sudo: false
 matrix:
   include:
     - go: 1.x
-      env: LATEST=true
-    - go: 1.11.x
-    - go: tip
-  allow_failures:
-    - go: tip
 
 before_install:
   - go get github.com/mitchellh/gox
@@ -29,7 +24,7 @@ script:
   - make ci
   - goveralls -coverprofile=target/.coverprofile -service=travis-ci -repotoken $COVERALLS_API_TOKEN
   # Only build binaries from the latest Go release.
-  - if [ "${LATEST}" = "true" ]; then make build; fi
+  - make build
 
 deploy:
   provider: releases
@@ -44,4 +39,3 @@ deploy:
   on:
     repo: digitalocean/node_collector
     tags: true
-    condition: $LATEST = true
