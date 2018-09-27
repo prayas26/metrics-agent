@@ -16,6 +16,8 @@ before_install:
   - go get github.com/mitchellh/gox
   - go get -u github.com/golang/dep/...
   - dep ensure
+  - curl -L https://git.io/vp6lP | sh
+  - export PATH="$PWD/bin:$PATH"
 
 install:
   - skip

@@ -14,5 +14,6 @@
     ],
     "Vendor": true,
     "Deadline": "60s",
-    "Aggregate": true
+    "Aggregate": true,
+    "Skip": ["pkg/clients/timeseries", "vendor"]
 }
