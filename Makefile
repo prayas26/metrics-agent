@@ -27,17 +27,17 @@ ldflags = '\
 ## paths ##
 ###########
 
-out := target
-cache := $(out)/.cache
+out        := target
+cache      := $(out)/.cache
 # project name
-project := $(notdir $(CURDIR))
+project    := $(notdir $(CURDIR))
 # import path used in gocode
 importpath := github.com/digitalocean/$(project)
-gofiles := $(call find,go)
+gofiles    := $(call find,go)
 
 # the name of the binary built with local resources
-local_binary := $(out)/$(project)_$(GOOS)_$(GOARCH)
-cover_profile := $(out)/.coverprofile
+local_binary        := $(out)/$(project)_$(GOOS)_$(GOARCH)
+cover_profile       := $(out)/.coverprofile
 GOX                 :=$(shell which gox || echo $(GOPATH)/bin/gox)
 supported_platforms := linux/amd64 linux/386
 
@@ -52,9 +52,9 @@ build: $(local_binary)
 $(local_binary): $(gofiles)
 	GOOS=$(GOOS) GOARCH=$(GOARCH) \
 	     go build \
-		-ldflags $(ldflags) \
-	     	-o "$@" \
-		./cmd/node_collector
+	     -ldflags $(ldflags) \
+	     -o "$@" \
+	     ./cmd/node_collector
 
 release: $(out)/$(project)
 $(out)/$(project): $(GOX) $(gofiles)
