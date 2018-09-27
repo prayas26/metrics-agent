@@ -38,10 +38,15 @@ gofiles := $(call find,go)
 # the name of the binary built with local resources
 local_binary := $(out)/$(project)_$(GOOS)_$(GOARCH)
 cover_profile := $(out)/.coverprofile
+GOX                 :=$(shell which gox || echo $(GOPATH)/bin/gox)
+supported_platforms := linux/amd64 linux/386
 
 #############
 ## targets ##
 #############
+
+$(GOX):
+	[ -z "$(GOX)" ] || go get github.com/mitchellh/gox
 
 build: $(local_binary)
 $(local_binary): $(gofiles)
@@ -52,10 +57,10 @@ $(local_binary): $(gofiles)
 		./cmd/node_collector
 
 release: $(out)/$(project)
-$(out)/$(project): $(gofiles)
-	gox -os="linux" -arch="amd64 386" \
-		-ldflags $(ldflags) \
+$(out)/$(project): $(GOX) $(gofiles)
+	@$(GOX) -osarch="$(supported_platforms)" \
 		-output "$@_{{.OS}}_{{.Arch}}" \
+		-ldflags $(ldflags) \
 		./cmd/node_collector
 
 lint: $(cache)/lint
@@ -70,5 +75,9 @@ $(cover_profile): $(gofiles)
 	go test -coverprofile=$@ ./...
 	$(touch)
 
-ci: lint test
+clean:
+	rm -rf $(out)
+.PHONY: clean
+
+ci: clean lint test
 .PHONY: ci
