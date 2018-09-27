@@ -6,6 +6,7 @@ DigitalOcean Node Collector is a work in progress
 
 [![Build
 Status](https://travis-ci.org/digitalocean/node_collector.svg?branch=master)](https://travis-ci.org/digitalocean/node_collector)
+[![Go Report Card](https://goreportcard.com/badge/github.com/digitalocean/node_collector)](https://goreportcard.com/report/github.com/digitalocean/node_collector)
 
 ## Development
 
