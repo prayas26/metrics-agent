@@ -68,6 +68,6 @@ func (s *Sonar) Write(mets []*dto.MetricFamily) error {
 }
 
 // Name is the name of this writer
-func (c *Sonar) Name() string {
+func (s *Sonar) Name() string {
 	return "sonar"
 }

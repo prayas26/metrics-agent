@@ -46,6 +46,7 @@ type FakeHTTPClient struct {
 	DoFunc func(*http.Request) (*http.Response, error)
 }
 
+// Do an HTTP request for testing
 func (c *FakeHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	if c.DoFunc != nil {
 		return c.DoFunc(req)

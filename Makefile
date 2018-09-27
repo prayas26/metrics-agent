@@ -61,6 +61,7 @@ $(out)/$(project): $(gofiles)
 lint: $(cache)/lint
 $(cache)/lint: $(gofiles)
 	$(print)
+	$(mkdir)
 	@gometalinter --config=gometalinter.json ./...
 	$(touch)
 
