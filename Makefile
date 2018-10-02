@@ -1,5 +1,11 @@
-GOOS        ?= linux
-GOARCH      ?= amd64
+GOOS   ?= linux
+GOARCH ?= amd64
+
+ifeq ($(GOARCH),386)
+PKG_ARCH = i386
+else
+PKG_ARCH = amd64
+endif
 
 ############
 ## macros ##
@@ -42,7 +48,6 @@ gofiles     := $(call find,go)
 # the name of the binary built with local resources
 local_binary        := $(out)/$(project)_$(GOOS)_$(GOARCH)
 cover_profile       := $(out)/.coverprofile
-supported_platforms := linux/amd64 linux/386
 
 # output packages
 deb_package := $(subst $(out),$(package_dir),$(local_binary)_$(git_tag).deb)
@@ -95,7 +100,8 @@ $(deb_package): $(local_binary)
 	$(mkdir)
 	@$(fpm) --output-type deb \
 		--input-type dir \
-		--architecture $(GOARCH) \
+		--force \
+		--architecture $(PKG_ARCH) \
 		--package $@ \
 		--no-depends \
 		--name $(project) \
@@ -125,6 +131,7 @@ $(rpm_package): $(deb_package)
 	$(print)
 	$(mkdir)
 	@$(fpm) -t rpm -s deb \
+		--force \
 		-p $@ \
 		$^
 	chown -R $(USER):$(USER) target
@@ -136,6 +143,7 @@ $(tar_package): $(deb_package)
 	$(print)
 	$(mkdir)
 	@$(fpm) -t tar -s deb \
+		--force \
 		-p $@ \
 		$^
 	chown -R $(USER):$(USER) target

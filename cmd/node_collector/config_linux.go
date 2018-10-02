@@ -22,6 +22,6 @@ func init() {
 		"interrupts", "ipvs", "ksmd", "logind", "mdadm", "meminfo_numa",
 		"mountstats", "nfs", "nfsd", "ntp", "qdisc", "runit", "sockstat",
 		"supervisord", "systemd", "tcpstat", "textfile", "time",
-		"timex", "wifi", "xfs", "zfs",
+		"wifi", "xfs", "zfs",
 	)
 }
