@@ -14,22 +14,12 @@ fpm   = docker run --rm -it \
 	-v ${PWD}:/tmp \
 	-w /tmp \
 	-u $(shell id -u) \
-	digitalocean/fpm:latest \
-	-n $(project) \
-	-m "DigitalOcean" \
-	-v $(git_tag) \
-	--description "DigitalOcean stats collector" \
-	--license apache-2.0 \
-	--vendor DigitalOcean \
-	--url https://github.com/digitalocean/node_collector \
-	--log info \
-	--conflicts do-agent \
-	--replaces do-agent
+	digitalocean/fpm:latest
 
+now          = $(shell date -u +"%F %T %Z")
 git_revision = $(shell git rev-parse HEAD)
-git_tag = $(shell git describe --tags 2>/dev/null || echo '0.0.0')
-git_branch = $(shell git rev-parse --abbrev-ref HEAD)
-now = $(shell date -u +"%F %T %Z")
+git_branch   = $(shell git rev-parse --abbrev-ref HEAD)
+git_tag      = $(shell git describe --tags --abbrev=0 2>/dev/null || echo '0.0.0')
 
 ldflags = '\
 	-X "main.version=$(git_tag)" \
@@ -42,13 +32,12 @@ ldflags = '\
 ## paths ##
 ###########
 
-out        := target
-cache      := $(out)/.cache
-# project name
-project    := $(notdir $(CURDIR))
-# import path used in gocode
-importpath := github.com/digitalocean/$(project)
-gofiles    := $(call find,go)
+out         := target
+package_dir := $(out)/pkg
+cache       := $(out)/.cache
+project     := $(notdir $(CURDIR))# project name
+importpath  := github.com/digitalocean/$(project)# import path used in gocode
+gofiles     := $(call find,go)
 
 # the name of the binary built with local resources
 local_binary        := $(out)/$(project)_$(GOOS)_$(GOARCH)
@@ -57,10 +46,9 @@ GOX                 := $(shell which gox || echo $(GOPATH)/bin/gox)
 supported_platforms := linux/amd64 linux/386
 
 # output packages
-fpm_image           := digitalocean/$(project)
-debian_package      := $(local_binary)-$(git_tag)-$(GOARCH).deb
-rpm_package         := $(local_binary)-$(git_tag)-$(GOARCH).rpm
-tar_package         := $(local_binary)-$(git_tag)-$(GOARCH).tar.gz
+deb_package := $(local_binary)_v$(git_tag).deb
+rpm_package := $(local_binary)_v$(git_tag).rpm
+tar_package := $(local_binary)_v$(git_tag).tar.gz
 
 #############
 ## targets ##
@@ -81,7 +69,7 @@ release:
 		./cmd/$(project)
 
 $(GOX):
-	[ -z "$(GOX)" ] || go get github.com/mitchellh/gox
+	@[ ! -f "$(GOX)" ] || go get github.com/mitchellh/gox
 
 lint: $(cache)/lint
 $(cache)/lint: $(gofiles)
@@ -93,7 +81,6 @@ test: $(cover_profile)
 $(cover_profile): $(gofiles)
 	$(mkdir)
 	go test -coverprofile=$@ ./...
-	$(touch)
 
 clean:
 	rm -rf $(out)
@@ -102,22 +89,46 @@ clean:
 ci: clean lint test
 .PHONY: ci
 
-debian: $(debian_package)
-$(debian_package): $(out)/$(project)_$(GOOS)_$(GOARCH)
+deb: $(deb_package)
+$(deb_package): $(out)/$(project)_$(GOOS)_$(GOARCH)
+	$(mkdir)
 	$(fpm) -t deb -s dir \
 		-a $(GOARCH) \
 		-p $@ \
 		--no-depends \
+		-n $(project) \
+		-m "DigitalOcean" \
+		-v $(git_tag) \
+		--description "DigitalOcean stats collector" \
+		--license apache-2.0 \
+		--vendor DigitalOcean \
+		--url https://github.com/digitalocean/node_collector \
+		--log info \
+		--conflicts do-agent \
+		--replaces do-agent \
 		$^=/usr/local/bin/node_collector \
-		packaging/lib/systemd/system/node_collector.service=/etc/systemd/system/multi-user.target.wants
+		packaging/lib/systemd/system/node_collector.service=/etc/systemd/system/multi-user.target.wants/node_collector.service
 	chown -R $(USER):$(USER) target
+	# print information about the compiled deb package
 	@docker run --rm -it -v ${PWD}:/tmp -w /tmp ubuntu:trusty /bin/bash -c 'dpkg --info $@ && dpkg -c $@'
 
 
 rpm: $(rpm_package)
-$(rpm_package): $(debian_package)
+$(rpm_package): $(deb_package)
+	$(mkdir)
 	$(fpm) -t rpm -s deb \
 		-p $@ \
 		$^
 	chown -R $(USER):$(USER) target
+	# print information about the compiled rpm package
 	@docker run --rm -it -v ${PWD}:/tmp -w /tmp centos:7 rpm -qilp $@
+
+tar: $(tar_package)
+$(tar_package): $(deb_package)
+	$(mkdir)
+	$(fpm) -t tar -s deb \
+		-p $@ \
+		$^
+	chown -R $(USER):$(USER) target
+	# print all files within the archive
+	@docker run --rm -it -v ${PWD}:/tmp -w /tmp ubuntu:trusty tar -ztvf $@
