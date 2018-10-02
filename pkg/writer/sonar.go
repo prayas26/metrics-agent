@@ -16,17 +16,17 @@
 package writer
 
 import (
-	"github.com/digitalocean/node_collector/pkg/clients/timeseries"
+	"github.com/digitalocean/node_collector/pkg/clients/tsclient"
 	dto "github.com/prometheus/client_model/go"
 )
 
 // Sonar writes metrics to DigitalOcean sonar
 type Sonar struct {
-	client *timeseries.HTTPClient
+	client tsclient.Client
 }
 
 // NewSonar creates a new Sonar writer
-func NewSonar(client *timeseries.HTTPClient) *Sonar {
+func NewSonar(client tsclient.Client) *Sonar {
 	return &Sonar{
 		client: client,
 	}
@@ -35,7 +35,6 @@ func NewSonar(client *timeseries.HTTPClient) *Sonar {
 // Write writes the metrics to Sonar and returns the amount of time to wait
 // before the next write
 func (s *Sonar) Write(mets []*dto.MetricFamily) error {
-	batch := timeseries.NewBatch()
 	for _, mf := range mets {
 		for _, metric := range mf.Metric {
 			var value float64
@@ -56,15 +55,15 @@ func (s *Sonar) Write(mets []*dto.MetricFamily) error {
 				labels[*label.Name] = *label.Value
 			}
 
-			batch.AddMetric(
-				timeseries.NewDefinition(*mf.Name, timeseries.WithCommonLabels(labels)),
+			s.client.AddMetric(
+				tsclient.NewDefinition(*mf.Name, tsclient.WithCommonLabels(labels)),
 				value)
 
 		}
 
 	}
 
-	return s.client.SendMetrics(batch)
+	return s.client.Flush()
 }
 
 // Name is the name of this writer

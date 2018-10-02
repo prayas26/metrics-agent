@@ -21,10 +21,10 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
-	"github.com/digitalocean/node_collector/pkg/clients"
-	"github.com/digitalocean/node_collector/pkg/clients/timeseries"
+	"github.com/digitalocean/node_collector/pkg/clients/tsclient"
 	"github.com/digitalocean/node_collector/pkg/collector"
 	"github.com/digitalocean/node_collector/pkg/decorate"
 	"github.com/digitalocean/node_collector/pkg/decorate/compat"
@@ -36,10 +36,12 @@ import (
 
 var (
 	config struct {
-		targets     map[string]string
-		metadataURL *url.URL
-		authURL     *url.URL
-		stdoutOnly  bool
+		targets       map[string]string
+		metadataURL   *url.URL
+		authURL       *url.URL
+		sonarEndpoint string
+		stdoutOnly    bool
+		debug         bool
 	}
 
 	// additionalParams is a list of extra command line flags to append
@@ -53,8 +55,9 @@ var (
 
 const (
 	appName            = "node_collector"
-	defaultMetadataURL = "http://169.254.169.254"
+	defaultMetadataURL = "http://169.254.169.254/metadata"
 	defaultAuthURL     = "https://sonar.digitalocean.com"
+	defaultSonarURL    = ""
 )
 
 func init() {
@@ -66,8 +69,15 @@ func init() {
 		Default(defaultMetadataURL).
 		URLVar(&config.metadataURL)
 
+	kingpin.Flag("sonar-host", "Endpoint to use for delivering metrics").
+		Default(defaultSonarURL).
+		StringVar(&config.sonarEndpoint)
+
 	kingpin.Flag("stdout-only", "write all metrics to stdout only").
 		BoolVar(&config.stdoutOnly)
+
+	kingpin.Flag("debug", "display debug information to stdout").
+		BoolVar(&config.debug)
 }
 
 func checkConfig() error {
@@ -101,27 +111,36 @@ func initDecorator() decorate.Chain {
 	}
 }
 
-func newTimeseriesClient(ctx context.Context) (*timeseries.HTTPClient, error) {
-	hc := clients.NewHTTP(time.Minute)
-	md := clients.NewMetadata(hc, config.metadataURL.String())
-	token, err := md.AuthToken(ctx)
-	if err != nil {
-		return nil, err
+// WrappedTSClient wraps the tsClient and adds a Name method to it
+type WrappedTSClient struct {
+	tsclient.Client
+}
+
+// Name returns the name of the client
+func (m *WrappedTSClient) Name() string { return "tsclient" }
+
+func newTimeseriesClient(ctx context.Context) (*WrappedTSClient, error) {
+	clientOptions := []tsclient.ClientOptFn{
+		tsclient.WithUserAgent(fmt.Sprintf("node-collector-%s", revision)),
+		tsclient.WithRadarEndpoint(config.authURL.String()),
+		tsclient.WithMetadataEndpoint(config.metadataURL.String()),
 	}
 
-	key, err := clients.NewAuthenticator(hc, config.authURL.String()).
-		AppKey(ctx, token)
-	if err != nil {
-		return nil, err
+	if config.sonarEndpoint != "" {
+		clientOptions = append(clientOptions, tsclient.WithWharfEndpoint(config.sonarEndpoint))
 	}
 
-	meta, err := md.Meta(ctx)
-	if err != nil {
-		return nil, err
+	if config.debug {
+		logger := func(msg string) {
+			fmt.Println(strings.TrimSpace(msg))
+		}
+		clientOptions = append(clientOptions, tsclient.WithLogger(logger))
 	}
 
-	url := fmt.Sprintf("https://%s.sonar.digitalocean.com/v1/metrics/droplet_id/%d", meta.Region, meta.DropletID)
-	return timeseries.New(hc, url, key), nil
+	tsClient := tsclient.New(clientOptions...)
+	wrappedTSClient := &WrappedTSClient{tsClient}
+
+	return wrappedTSClient, nil
 }
 
 // initCollectors initializes the prometheus collectors. By default this
