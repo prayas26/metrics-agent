@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 User=nobody
 Group=nogroup
-ExecStart=/opt/digitalocean/bin/node_collector
+ExecStart=/usr/local/bin/node_collector
 Restart=always
 
 OOMScoreAdjust=-900
