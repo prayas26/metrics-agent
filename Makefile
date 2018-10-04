@@ -115,8 +115,6 @@ $(deb_package): $(local_binary)
 		--conflicts do-agent \
 		--replaces do-agent \
 		--after-install packaging/scripts/after_install.sh \
-		--before-upgrade packaging/scripts/before_upgrade.sh \
-		--after-upgrade packaging/scripts/after_upgrade.sh \
 		--after-remove packaging/scripts/after_remove.sh \
 		packaging/etc/init/node-collector.conf=/opt/digitalocean/scripts/ \
 		packaging/lib/systemd/system/node-collector.service=/opt/digitalocean/scripts/ \
