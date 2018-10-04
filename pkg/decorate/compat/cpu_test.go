@@ -16,10 +16,7 @@
 package compat
 
 import (
-	"bytes"
 	"fmt"
-	"log"
-	"os"
 	"testing"
 
 	dto "github.com/prometheus/client_model/go"
@@ -150,10 +147,6 @@ func TestCPUDoesNotChangeOtherMetrics(t *testing.T) {
 
 func TestCPUSkipsWhenFailsParsingCPUNumber(t *testing.T) {
 	dec := CPU{}
-
-	w := bytes.NewBuffer(nil)
-	log.SetOutput(w)
-	defer log.SetOutput(os.Stdout)
 
 	v := 1.0
 	metric := dto.Metric{

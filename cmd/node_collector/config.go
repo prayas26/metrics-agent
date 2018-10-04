@@ -18,12 +18,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/digitalocean/node_collector/internal/log"
 	"github.com/digitalocean/node_collector/pkg/clients/tsclient"
 	"github.com/digitalocean/node_collector/pkg/collector"
 	"github.com/digitalocean/node_collector/pkg/decorate"
@@ -42,6 +42,7 @@ var (
 		sonarEndpoint string
 		stdoutOnly    bool
 		debug         bool
+		syslog        bool
 	}
 
 	// additionalParams is a list of extra command line flags to append
@@ -78,6 +79,9 @@ func init() {
 
 	kingpin.Flag("debug", "display debug information to stdout").
 		BoolVar(&config.debug)
+
+	kingpin.Flag("syslog", "enable logging to syslog").
+		BoolVar(&config.syslog)
 }
 
 func checkConfig() error {
@@ -97,7 +101,7 @@ func initWriter(ctx context.Context) (metricWriter, throttler) {
 
 	tsc, err := newTimeseriesClient(ctx)
 	if err != nil {
-		log.Fatalf("ERROR: failed to connect to sonar: %+v", err)
+		log.Fatal("failed to connect to sonar: %+v", err)
 	}
 	return writer.NewSonar(tsc), tsc
 }
@@ -153,12 +157,12 @@ func initCollectors() []prometheus.Collector {
 	// this device
 	node, err := collector.NewNodeCollector()
 	if err != nil {
-		log.Fatalf("ERROR: failed to create node collector: %+v", err)
+		log.Fatal("failed to create node collector: %+v", err)
 	}
-	log.Printf("INFO: %d node_exporter collectors were registered", len(node.Collectors()))
+	log.Info("%d node_exporter collectors were registered", len(node.Collectors()))
 
 	for name := range node.Collectors() {
-		log.Printf("INFO: node_exporter collector registered %q", name)
+		log.Info("node_exporter collector registered %q", name)
 	}
 	cols = append(cols, node)
 

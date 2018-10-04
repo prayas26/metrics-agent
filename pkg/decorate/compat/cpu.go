@@ -17,10 +17,10 @@ package compat
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
+	"github.com/digitalocean/node_collector/internal/log"
 	dto "github.com/prometheus/client_model/go"
 )
 
@@ -47,7 +47,7 @@ func (CPU) Decorate(mfs []*dto.MetricFamily) {
 				}
 				num, err := strconv.Atoi(l.GetValue())
 				if err != nil {
-					log.Printf("ERROR: failed to parse cpu number: %+v\n", l)
+					log.Error("failed to parse cpu number: %+v", l)
 					continue
 				}
 

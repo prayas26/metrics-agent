@@ -17,10 +17,10 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"time"
 
+	"github.com/digitalocean/node_collector/internal/log"
 	"github.com/digitalocean/node_collector/pkg/decorate"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
@@ -37,8 +37,14 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
+	if config.syslog {
+		if err := log.InitSyslog(); err != nil {
+			log.Error("failed to initialize syslog. Using standard logging: %+v", err)
+		}
+	}
+
 	if err := checkConfig(); err != nil {
-		log.Fatal("ERROR: configuration failure: ", err)
+		log.Fatal("configuration failure: %+v", err)
 	}
 
 	cols := initCollectors()
@@ -71,21 +77,21 @@ func run(ctx context.Context, w metricWriter, th throttler, dec decorate.Decorat
 		start := time.Now()
 		mfs, err := g.Gather()
 		if err != nil {
-			log.Printf("ERROR: failed to gather metrics: %v\n", err)
+			log.Error("failed to gather metrics: %v", err)
 			return
 		}
-		log.Println("INFO: stats collected in", time.Since(start))
+		log.Info("stats collected in %s", time.Since(start))
 
 		start = time.Now()
 		dec.Decorate(mfs)
-		log.Println("INFO: stats decorated in", time.Since(start))
+		log.Info("stats decorated in %s", time.Since(start))
 
 		err = w.Write(mfs)
 		if err != nil {
-			log.Printf("ERROR: failed to send metrics: %v", err)
+			log.Error("failed to send metrics: %v", err)
 			return
 		}
-		log.Println("INFO: stats written in", time.Since(start))
+		log.Info("stats written in %s", time.Since(start))
 	}
 
 	exec()

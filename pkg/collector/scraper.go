@@ -21,11 +21,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/digitalocean/node_collector/internal/log"
 	"github.com/digitalocean/node_collector/pkg/clients"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -86,7 +86,7 @@ func (s *Scraper) readStream(ctx context.Context) (r io.ReadCloser, outerr error
 		if err := r.Close(); err != nil {
 			// This should not happen, but if it does it'll be nice
 			// to know why we have a bunch of unclosed messages
-			log.Printf("ERROR: failed to close stream on error: %+v", errors.WithStack(err))
+			log.Error("failed to close stream on error: %+v", errors.WithStack(err))
 		}
 	}()
 
@@ -131,7 +131,7 @@ func (s *Scraper) Collect(ch chan<- prometheus.Metric) {
 
 	if err := s.scrape(ctx, ch); err != nil {
 		failed = true
-		log.Printf("ERROR: collection failed for %q: %v", s.Name(), err)
+		log.Error("collection failed for %q: %v", s.Name(), err)
 	}
 }
 
@@ -247,7 +247,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 				buckets, values...,
 			)
 		default:
-			log.Print("ERROR: unknown metric type", metricType.String())
+			log.Error("unknown metric type %q", metricType.String())
 			continue
 		}
 		if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {

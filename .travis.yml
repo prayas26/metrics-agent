@@ -6,6 +6,8 @@ services:
   - docker
 
 matrix:
+  # fail fast
+  fast_finish: true
   include:
     - go: 1.x
 
