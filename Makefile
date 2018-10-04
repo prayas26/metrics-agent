@@ -50,9 +50,9 @@ local_binary        := $(out)/$(project)_$(GOOS)_$(GOARCH)
 cover_profile       := $(out)/.coverprofile
 
 # output packages
-deb_package := $(subst $(out),$(package_dir),$(local_binary)_$(git_tag).deb)
-rpm_package := $(subst $(out),$(package_dir),$(local_binary)_$(git_tag).rpm)
-tar_package := $(subst $(out),$(package_dir),$(local_binary)_$(git_tag).tar.gz)
+deb_package := $(subst $(out),$(package_dir),$(local_binary).deb)
+rpm_package := $(subst $(out),$(package_dir),$(local_binary).rpm)
+tar_package := $(subst $(out),$(package_dir),$(local_binary).tar.gz)
 
 #############
 ## targets ##
