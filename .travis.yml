@@ -53,13 +53,13 @@ deploy:
     on:
       repo: digitalocean/node_collector
       tags: true
-  # - provider: packagecloud
-  #   skip_cleanup: true
-  #   repository: digitalocean/node-collector
-  #   username: digitalocean
-  #   token: "TODO"
-  #   dist: "YOUR DIST" # like 'ubuntu/precise', or 'centos/5', if pushing deb or rpms
-  #   local-dir: target
-  #   on:
-  #     repo: digitalocean/node_collector
-  #     tags: true
+  - provider: packagecloud
+    skip_cleanup: true
+    repository: digitalocean-insights/node-collector
+    username: "eng-insights@digitalocean.com"
+    token:
+      secure: zwjga/LKUjHG2vEVXBGrCU+IQVK9RRgnmBrv7XuhVtqpGx3qchoc9OXnpjjV+t7AVNppq199miBUpP8r0cnV03tq6feb2IPin7F2aC0sAnkI3MaNr1kSX9mCozQuFW2cHApHx64ZBtxxqXo9I54qFtJqiGn16FW0gXLYDRsMZpJ10B79oY2DE5PaaCHYyst2tqT6IUm6bIotGWCCKcvExot5qSrKZdgUVnfLooOsmd7Hes+pJgzrCXDXscAkf0+SwoCopianS0wkVLH8tv9sx6FeYriD9XchVGiKmW+oX+mx2htbDlzIWOJtHm/4cniu/xyRd9rFuks+YHqlYN6Tzu2pzL/bG0e0QeBFeJ0FBc2mXy6F9O7j4Cl/KPbMO9x+ozVd6c6ralzh7fh2JgZLwyMB/3zh3Nn67CbVR/Xid8GEcNg35mXcax9fTVXeJVE6RR5jj9iAH9T5komJ0xtZ69/jpx07fYrk1in4cy8h8ybxxMECuNoy35IEySREjvjvcwSh4APFfe0uNFdEVqipx1gY77/2DT8pERc0mhWK1Kyt0FWMI1dHL2PbDPvl7kSUOhTBYSVvKV+rwOFcjs/PWtTagIvfGbRnOfFBAw1pwFCabEji4jam1IfPn1Ajco7RzaZUMa27KNAPY5YJ/303MYIZABkDU/ETWZnkX+pCki0=
+    local-dir: target/pkg
+    on:
+      repo: digitalocean/node_collector
+      tags: true
