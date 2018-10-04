@@ -81,6 +81,7 @@ $(cache)/lint: $(gofiles)
 	$(touch)
 
 shellcheck: $(cache)/shellcheck
+$(cache)/shellcheck:
 	$(print)
 	$(mkdir)
 	@shellcheck packaging/scripts/*.sh
