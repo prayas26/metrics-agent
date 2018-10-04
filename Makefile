@@ -80,6 +80,13 @@ $(cache)/lint: $(gofiles)
 	@gometalinter --config=gometalinter.json ./...
 	$(touch)
 
+shellcheck: $(cache)/shellcheck
+$(cache)/shellcheck:
+	$(print)
+	$(mkdir)
+	@shellcheck packaging/scripts/*.sh
+	$(touch)
+
 test: $(cover_profile)
 $(cover_profile): $(gofiles)
 	$(print)
@@ -91,7 +98,7 @@ clean:
 	@rm -rf $(out)
 .PHONY: clean
 
-ci: clean lint test
+ci: clean lint shellcheck test
 .PHONY: ci
 
 deb: $(deb_package)

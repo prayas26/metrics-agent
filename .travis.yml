@@ -5,6 +5,10 @@ sudo: required
 services:
   - docker
 
+addons:
+  apt:
+    update: true
+
 matrix:
   # fail fast
   fast_finish: true
@@ -12,6 +16,7 @@ matrix:
     - go: 1.x
 
 before_install:
+  - sudo apt-get install -y shellcheck
   - go get -u github.com/golang/dep/...
   # coveralls.io deps
   - go get golang.org/x/tools/cmd/cover github.com/mattn/goveralls
@@ -48,13 +53,13 @@ deploy:
     on:
       repo: digitalocean/node_collector
       tags: true
-  # - provider: packagecloud
-  #   skip_cleanup: true
-  #   repository: digitalocean/node-collector
-  #   username: digitalocean
-  #   token: "TODO"
-  #   dist: "YOUR DIST" # like 'ubuntu/precise', or 'centos/5', if pushing deb or rpms
-  #   local-dir: target
-  #   on:
-  #     repo: digitalocean/node_collector
-  #     tags: true
+  - provider: packagecloud
+    skip_cleanup: true
+    repository: digitalocean-insights/node-collector
+    username: "eng-insights@digitalocean.com"
+    token:
+      secure: vqJghy6b5B256Y1Je4t88KXabaE/3BJS7ny8Ncc6eEiehLXqh0mb16mJCDTLhTsZQ3vvNhJP5vX0qaTR5nFH5QI/iUYhJd7UPV1H3KfINdsHflmvu8L8ICQNWG4PLV/E0TbHaWgD+i/FPQ5nJ2quAKVIZrR+cChw4A/W8PMwRy76XOvYWtyuYhYptXQV2hlVwoIqZVW1vYExsSmHm+9Z7M//JvLZX4XcB8tVBCdjQ/mPCXypGs0qgaEpSkGKxYnX47doIazY/fdBtRhxsvhSlGjGBwav/II6zwVcwQS8I7rmdG7oNZkQyxZeVMV1vF0MqPJlDvk4KfuC0/ATzJD8CQPskxn5ANeRVS8A4lITQDIdRIs/xY0K/canvG3PSAZVpc1pq9vN0msil9R2qQ8YYMe7igYX3DkudgIR+MhPE7WfhWbUjBBu6EVphyzOP5vyX4mYKmidFjaV7D7z0PeJ364muI5riXieStVp3vjfiTqhZT7gtSfEOz8iIeUDHQDjzw4SaTJCHLn857x3ZfGzCxDUVLpd5wPbVpqmmmvf7FWXEEgtjGapmrfYH0/fXI03mTQFMeIgYlRzKO8a/dta25jA3+imy88PyvlVMRVf7wK1O7ggKorx5Mb/GVbkVroCRZ9wjKbb0WtCz5vqubJbehOfVSbElwksDh5LuDhvLEg=
+    local-dir: target/pkg
+    on:
+      repo: digitalocean/node_collector
+      tags: true
