@@ -4,13 +4,13 @@ set -e
 SVC_NAME=node-collector
 
 if command -v systemctl 2> /dev/null; then
-        echo "Configue systemd..."
+        echo "Configure systemd..."
         systemctl stop ${SVC_NAME} || true
         systemctl disable ${SVC_NAME}.service || true
         unlink /etc/systemd/system/${SVC_NAME}.service || true
         systemctl daemon-reload || true
 elif command -v initctl 2> /dev/null; then
-        echo "Configue upstart..."
+        echo "Configure upstart..."
         initctl stop ${SVC_NAME} || true
         unlink /etc/init/${SVC_NAME}.conf || true
         initctl reload-configuration || true
