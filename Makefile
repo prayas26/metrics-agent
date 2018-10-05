@@ -42,26 +42,30 @@ out         := target
 package_dir := $(out)/pkg
 cache       := $(out)/.cache
 project     := $(notdir $(CURDIR))# project name
+pkg_project := $(subst _,-,$(project))# package cannot have underscores in the name
 importpath  := github.com/digitalocean/$(project)# import path used in gocode
 gofiles     := $(call find,go)
 
 # the name of the binary built with local resources
-local_binary        := $(out)/$(project)_$(GOOS)_$(GOARCH)
-cover_profile       := $(out)/.coverprofile
+binary             := $(out)/$(project)_$(GOOS)_$(GOARCH)
+cover_profile      := $(out)/.coverprofile
 
 # output packages
-deb_package := $(subst $(out),$(package_dir),$(local_binary).deb)
-rpm_package := $(subst $(out),$(package_dir),$(local_binary).rpm)
-tar_package := $(subst $(out),$(package_dir),$(local_binary).tar.gz)
+# deb files should end with _version_arch.deb
+# rpm files should end with -version-release.arch.rpm
+deb_package := $(package_dir)/$(pkg_project)_$(version)_$(PKG_ARCH).deb
+rpm_package := $(package_dir)/$(pkg_project)-$(version)-1.$(PKG_ARCH).rpm
+tar_package := $(subst .deb,.tar.gz,$(deb_package))
 
 #############
 ## targets ##
 #############
 
-build: $(local_binary)
-$(local_binary): $(gofiles)
+build: $(binary)
+$(binary):
 	$(print)
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) \
+	$(mkdir)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) \
 	     go build \
 	     -ldflags $(ldflags) \
 	     -o "$@" \
@@ -70,8 +74,8 @@ $(local_binary): $(gofiles)
 package: release
 release:
 	$(print)
-	@GOOS=linux GOARCH=amd64 $(MAKE) build deb rpm tar
 	@GOOS=linux GOARCH=386 $(MAKE) build deb rpm tar
+	@GOOS=linux GOARCH=amd64 $(MAKE) build deb rpm tar
 
 lint: $(cache)/lint
 $(cache)/lint: $(gofiles)
@@ -102,7 +106,7 @@ ci: clean lint shellcheck test
 .PHONY: ci
 
 deb: $(deb_package)
-$(deb_package): $(local_binary)
+$(deb_package): $(binary)
 	$(print)
 	$(mkdir)
 	@$(fpm) --output-type deb \
@@ -111,7 +115,7 @@ $(deb_package): $(local_binary)
 		--architecture $(PKG_ARCH) \
 		--package $@ \
 		--no-depends \
-		--name $(project) \
+		--name $(pkg_project) \
 		--maintainer "DigitalOcean" \
 		--version $(version) \
 		--description "DigitalOcean stats collector" \
@@ -123,9 +127,9 @@ $(deb_package): $(local_binary)
 		--replaces do-agent \
 		--after-install packaging/scripts/after_install.sh \
 		--after-remove packaging/scripts/after_remove.sh \
-		packaging/etc/init/node-collector.conf=/opt/digitalocean/scripts/ \
-		packaging/lib/systemd/system/node-collector.service=/opt/digitalocean/scripts/ \
-		$^=/usr/local/bin/node_collector
+		packaging/etc/init/node-collector.conf=/opt/digitalocean/node_collector/scripts/ \
+		packaging/lib/systemd/system/node-collector.service=/opt/digitalocean/node_collector/scripts/ \
+		$<=/usr/local/bin/node_collector
 	chown -R $(USER):$(USER) target
 # print information about the compiled deb package
 	@docker run --rm -it -v ${PWD}:/tmp -w /tmp ubuntu:xenial /bin/bash -c 'dpkg --info $@ && dpkg -c $@'

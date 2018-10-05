@@ -40,26 +40,14 @@ deploy:
     api_key:
       # this is a generated and encrypted by running `travis setup releases`
       secure: qzSV3A5jXXl8UDhK7yL3ff06NwkgPfczn7GrPhU3n//pvLjhRCozYkgznmUpQh8Ef2ZpHqwYhdPAYP1np4LT5RMQtJFeQUxmlZ/m2wWQwkHc7Oct19UlgZ28/kwwyqPAE9ErL179tyFTe3pfn42UFXL30ciD7xGCOlFc0YH+4yWAzqcpicGfR/885eAwzitckBXioC/59MwMCBwgQuS9aRknMIT4tjgjfpEu6RZyM0/ycODkHxezjcW66R5qu5ezE8WVTjIPHg9/qChLSSYzL2Z86oqy7ezyOuhsbeKb4i5wXpHc7wyvhpwmgIb9dFiiwrGPcEMJC8g8BUqA5XRtBCq6Sedlmn48L1c6UMVdAqX/DhtRzPjFnb7LqGQGmGA5bXLJXj8t5yoMDq9ii+sA3XsCZfT3QLafkuVpMvjgeMFL6gdfaGDHD49xYt/s1lW2q7YSq/Fv1aLfQmR86umetzZQ4Kya8DwCOjO7xWUUGp68yvFFQei70/Q7RVXAPPa+FVxiguxxtyqHRAa/P4uVwaqLkfcPaTE1Jv+j8Vlz2q66gyGOE8/8vALz18i3/Y2GteSjMTU6VKvugVt4H4JzoUC4YdmDat862L0uWUOB1uzVd+Hj5JZ5gGB1p3tneo9icYEVeqaAuffHeHPMujbXbjR+PQ1LqwNxbk/Wjlw1gVw=
-    file_glob: false
-    file:
-      - target/node_collector_linux_386
-      - target/node_collector_linux_amd64
-      - target/pkg/node_collector_linux_386.deb
-      - target/pkg/node_collector_linux_386.rpm
-      - target/pkg/node_collector_linux_386.tar.gz
-      - target/pkg/node_collector_linux_amd64.deb
-      - target/pkg/node_collector_linux_amd64.rpm
-      - target/pkg/node_collector_linux_amd64.tar.gz
+    file_glob: true
+    file: target/**/node*
     on:
       repo: digitalocean/node_collector
       tags: true
-  - provider: packagecloud
+  - provider: script
     skip_cleanup: true
-    repository: node-collector
-    username: digitalocean-insights
-    token:
-      secure: vqJghy6b5B256Y1Je4t88KXabaE/3BJS7ny8Ncc6eEiehLXqh0mb16mJCDTLhTsZQ3vvNhJP5vX0qaTR5nFH5QI/iUYhJd7UPV1H3KfINdsHflmvu8L8ICQNWG4PLV/E0TbHaWgD+i/FPQ5nJ2quAKVIZrR+cChw4A/W8PMwRy76XOvYWtyuYhYptXQV2hlVwoIqZVW1vYExsSmHm+9Z7M//JvLZX4XcB8tVBCdjQ/mPCXypGs0qgaEpSkGKxYnX47doIazY/fdBtRhxsvhSlGjGBwav/II6zwVcwQS8I7rmdG7oNZkQyxZeVMV1vF0MqPJlDvk4KfuC0/ATzJD8CQPskxn5ANeRVS8A4lITQDIdRIs/xY0K/canvG3PSAZVpc1pq9vN0msil9R2qQ8YYMe7igYX3DkudgIR+MhPE7WfhWbUjBBu6EVphyzOP5vyX4mYKmidFjaV7D7z0PeJ364muI5riXieStVp3vjfiTqhZT7gtSfEOz8iIeUDHQDjzw4SaTJCHLn857x3ZfGzCxDUVLpd5wPbVpqmmmvf7FWXEEgtjGapmrfYH0/fXI03mTQFMeIgYlRzKO8a/dta25jA3+imy88PyvlVMRVf7wK1O7ggKorx5Mb/GVbkVroCRZ9wjKbb0WtCz5vqubJbehOfVSbElwksDh5LuDhvLEg=
-    local-dir: target/pkg
+    script: packaging/scripts/deploy-packagecloud.sh
     on:
       repo: digitalocean/node_collector
-      tags: true
+      # tags: true
