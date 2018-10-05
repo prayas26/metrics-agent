@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ue
+set -uxe
 
 UBUNTU_VERSIONS="trusty utopic vivid wily xenial yakkety zesty artful bionic"
 DEBIAN_VERSIONS="wheezy jessie stretch buster"
@@ -7,11 +7,10 @@ RHEL_VERSIONS="6 7"
 FEDORA_VERSIONS="27 28"
 
 main() {
-        if [ -z "$PACKAGECLOUD_TOKEN" ]; then
+        if [ -z "${PACKAGECLOUD_TOKEN+x}" ]; then
                 echo "PACKAGECLOUD_TOKEN is unset. Exiting..." > /dev/stderr
                 exit 1
         fi
-
 
         for uv in $UBUNTU_VERSIONS; do
                 package_cloud push \

@@ -47,7 +47,7 @@ deploy:
       tags: true
   - provider: script
     skip_cleanup: true
-    script: packaging/scripts/deploy-packagecloud.sh
+    script: bash packaging/scripts/deploy-packagecloud.sh
     on:
       repo: digitalocean/node_collector
-      # tags: true
+      tags: true
