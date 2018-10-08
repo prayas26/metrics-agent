@@ -127,6 +127,8 @@ $(deb_package): $(binary)
 		--replaces do-agent \
 		--after-install packaging/scripts/after_install.sh \
 		--after-remove packaging/scripts/after_remove.sh \
+		--deb-group nobody \
+		--deb-user nobody \
 		packaging/etc/init/node-collector.conf=/opt/digitalocean/node_collector/scripts/ \
 		packaging/lib/systemd/system/node-collector.service=/opt/digitalocean/node_collector/scripts/ \
 		$<=/usr/local/bin/node_collector
@@ -139,7 +141,11 @@ rpm: $(rpm_package)
 $(rpm_package): $(deb_package)
 	$(print)
 	$(mkdir)
-	@$(fpm) -t rpm -s deb \
+	@$(fpm) \
+		--output-type rpm \
+		--input-type deb \
+		--rpm-group nobody \
+		--rpm-user nobody \
 		--force \
 		-p $@ \
 		$^
@@ -151,7 +157,9 @@ tar: $(tar_package)
 $(tar_package): $(deb_package)
 	$(print)
 	$(mkdir)
-	@$(fpm) -t tar -s deb \
+	@$(fpm) \
+		--output-type tar \
+		--input-type deb \
 		--force \
 		-p $@ \
 		$^

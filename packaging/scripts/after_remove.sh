@@ -2,7 +2,7 @@
 # IMPORTANT: rpm will execute with /bin/sh.
 # DO NOT change this and make sure you are linting with shellcheck to ensure
 # compatbility with scripts
-set -uxe
+set -ue
 
 SVC_NAME=node-collector
 

@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 User=nobody
-Group=nogroup
+Group=nobody
 ExecStart=/usr/local/bin/node_collector
 Restart=always
 
