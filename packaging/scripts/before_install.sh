@@ -6,10 +6,14 @@ set -ue
 
 SVC_NAME=node-collector
 
-if command -v systemctl >/dev/null 2>&1; then
-        systemctl stop ${SVC_NAME} || true
-elif command -v initctl >/dev/null 2>&1; then
-        initctl stop ${SVC_NAME} || true
-else
-        echo "Unknown init system" > /dev/stderr
-fi
+main () {
+        if command -v systemctl >/dev/null 2>&1; then
+                systemctl stop ${SVC_NAME} || true
+        elif command -v initctl >/dev/null 2>&1; then
+                initctl stop ${SVC_NAME} || true
+        else
+                echo "Unknown init system" > /dev/stderr
+        fi
+}
+
+main

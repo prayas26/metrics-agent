@@ -128,9 +128,7 @@ $(deb_package): $(binary)
 		--after-install packaging/scripts/after_install.sh \
 		--after-remove packaging/scripts/after_remove.sh \
 		--deb-group nobody \
-		--deb-user nobody \
-		packaging/etc/init/node-collector.conf=/opt/digitalocean/node_collector/scripts/ \
-		packaging/lib/systemd/system/node-collector.service=/opt/digitalocean/node_collector/scripts/ \
+		--deb-user nogroup \
 		$<=/usr/local/bin/node_collector
 	chown -R $(USER):$(USER) target
 # print information about the compiled deb package
