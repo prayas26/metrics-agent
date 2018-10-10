@@ -11,7 +11,7 @@ endif
 ## macros ##
 ############
 
-find  = $(shell find . -name \*.$1 -type f)
+find  = $(shell find . -name \*.$1 -type f ! -path '*/vendor/*' ! -path '*/target/*')
 mkdir = @mkdir -p $(dir $@)
 cp    = @cp $< $@
 print = @echo "\n:::::::::::::::: [$(shell date -u)] $@ ::::::::::::::::"
@@ -77,7 +77,7 @@ release:
 	@GOOS=linux GOARCH=386 $(MAKE) build deb rpm tar
 	@GOOS=linux GOARCH=amd64 $(MAKE) build deb rpm tar
 
-lint: $(cache)/lint
+lint: $(cache)/lint $(cache)/shellcheck
 $(cache)/lint: $(gofiles)
 	$(print)
 	$(mkdir)
@@ -85,10 +85,10 @@ $(cache)/lint: $(gofiles)
 	$(touch)
 
 shellcheck: $(cache)/shellcheck
-$(cache)/shellcheck:
+$(cache)/shellcheck: $(call find,sh)
 	$(print)
 	$(mkdir)
-	@shellcheck packaging/scripts/*.sh
+	@shellcheck $^
 	$(touch)
 
 test: $(cover_profile)
