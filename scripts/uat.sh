@@ -23,9 +23,9 @@ SNYDER_SSH_FINGERPRINT="47:31:9b:8b:87:a7:2d:26:79:17:87:83:53:65:d4:b4"
 
 # disabling literan '\n' error in shellcheck since that is the expected behavior
 # shellcheck disable=SC1117
-USER_DATA_DEB="#!/bin/bash\n apt-get update && apt-get install -y curl; curl -s https://packagecloud.io/install/repositories/digitalocean-insights/node-collector/script.deb.sh | sudo bash\n apt install -y node-collector"
+USER_DATA_DEB="#!/bin/bash\n apt-get update && apt-get install -y curl; curl -s https://packagecloud.io/install/repositories/digitalocean-insights/node-collector-beta/script.deb.sh | sudo bash\n apt install -y node-collector"
 # shellcheck disable=SC1117
-USER_DATA_RPM="#!/bin/bash\n curl -s https://packagecloud.io/install/repositories/digitalocean-insights/node-collector/script.rpm.sh | sudo bash\n yum install -y node-collector"
+USER_DATA_RPM="#!/bin/bash\n curl -s https://packagecloud.io/install/repositories/digitalocean-insights/node-collector-beta/script.rpm.sh | sudo bash\n yum install -y node-collector"
 
 
 function main() {

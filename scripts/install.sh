@@ -2,6 +2,9 @@
 
 set -ue
 
+# REPO="node-collector"
+# TODO use metadata api to determine beta
+REPO="node-collector-beta"
 dist=""
 
 function main() {
@@ -11,7 +14,7 @@ function main() {
 
 	require_package curl
 
-	curl -s "https://packagecloud.io/install/repositories/digitalocean-insights/node-collector/script.$kind.sh" \
+	curl -s "https://packagecloud.io/install/repositories/digitalocean-insights/${REPO}/script.$kind.sh" \
 		| sudo bash
 
 	install_package node-collector

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ue
+set -ueo pipefail
 
 # This script fails for 'PACKAGECLOUD_TOKEN: unbound variable' when the env var
 # is unset. This var is required for execution of package_cloud. This snippet
@@ -16,25 +16,25 @@ FEDORA_VERSIONS="27 28"
 main() {
 	for uv in $UBUNTU_VERSIONS; do
 		package_cloud push \
-			"digitalocean-insights/node-collector/ubuntu/$uv" \
+			"digitalocean-insights/node-collector-beta/ubuntu/$uv" \
 			./target/pkg/*.deb &
 	done
 
 	for dv in $DEBIAN_VERSIONS; do
 		package_cloud push \
-			"digitalocean-insights/node-collector/debian/$dv" \
+			"digitalocean-insights/node-collector-beta/debian/$dv" \
 			./target/pkg/*.deb &
 	done
 
 	for rv in $RHEL_VERSIONS; do
 		package_cloud push \
-			"digitalocean-insights/node-collector/el/$rv" \
+			"digitalocean-insights/node-collector-beta/el/$rv" \
 			./target/pkg/*.rpm &
 	done
 
 	for fv in $FEDORA_VERSIONS; do
 		package_cloud push \
-			"digitalocean-insights/node-collector/fedora/$fv" \
+			"digitalocean-insights/node-collector-beta/fedora/$fv" \
 			./target/pkg/*.rpm &
 	done
 
