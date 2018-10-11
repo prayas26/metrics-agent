@@ -1,5 +1,9 @@
 #!/bin/sh
-# IMPORTANT: rpm will execute with /bin/sh.
+# noexpandtab is required for EOF/heredoc
+# vim: noexpandtab
+#
+# IMPORTANT: this script will execute with /bin/sh which is dash on some
+# systems so this shebang should not be changed
 # DO NOT change this and make sure you are linting with shellcheck to ensure
 # compatbility with scripts
 set -ue

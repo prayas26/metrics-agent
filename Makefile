@@ -72,7 +72,7 @@ $(binary):
 	     ./cmd/$(project)
 
 package: release
-release:
+release: $(out)/scripts/node-collector-install.sh
 	$(print)
 	@GOOS=linux GOARCH=386 $(MAKE) build deb rpm tar
 	@GOOS=linux GOARCH=amd64 $(MAKE) build deb rpm tar
@@ -105,6 +105,11 @@ clean:
 ci: clean lint shellcheck test
 .PHONY: ci
 
+$(out)/scripts/node-collector-install.sh: ./scripts/install.sh
+	$(print)
+	$(mkdir)
+	$(cp)
+
 deb: $(deb_package)
 $(deb_package): $(binary)
 	$(print)
@@ -129,7 +134,8 @@ $(deb_package): $(binary)
 		--after-remove packaging/scripts/after_remove.sh \
 		--deb-group nobody \
 		--deb-user nogroup \
-		$<=/usr/local/bin/node_collector
+		$<=/usr/local/bin/node_collector \
+		scripts/update.sh=/opt/digitalocean/node_collector/scripts/update.sh
 	chown -R $(USER):$(USER) target
 # print information about the compiled deb package
 	@docker run --rm -it -v ${PWD}:/tmp -w /tmp ubuntu:xenial /bin/bash -c 'dpkg --info $@ && dpkg -c $@'
@@ -141,6 +147,7 @@ $(rpm_package): $(deb_package)
 	$(mkdir)
 	@$(fpm) \
 		--output-type rpm \
+		--depends cronie \
 		--input-type deb \
 		--rpm-group nobody \
 		--rpm-user nobody \

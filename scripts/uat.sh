@@ -6,7 +6,7 @@
 # create a new function called 'function command_<task>'. It will automatically
 # get picked up as a new command.
 
-set -eu
+set -ue
 
 # team context in the URL of the browser
 CONTEXT=14661f
@@ -118,29 +118,28 @@ function command_create_all() {
 # ssh to all droplets and run <init system> status node-collector to verify
 # that it is indeed running
 function command_status_all() {
-        command_exec_all "\
-                (command -v systemctl 2&>/dev/null && systemctl is-active node-collector) \
-                || \
-                (initctl status node-collector) \
-        "
+        command_exec_all "if command -v systemctl 2&>/dev/null; then \
+                systemctl is-active node-collector; \
+        else \
+                initctl status node-collector; \
+        fi"
 }
 
 # ssh to all droplets and run yum/apt update to upgrade to the latest published
 # version of node-collector
 function command_update_all() {
-        command_exec_all "\
-                (command -v yum 2&>/dev/null && yum check-update && yum update node-collector) \
-                || \
-                (apt-get update && apt-get install --only-upgrade node-collector) \
-        "
+        command_exec_all "if command -v yum 2&>/dev/null; then \
+                yum check-update >/dev/null; \
+                yum update node-collector; \
+        else \
+                apt-get update >/dev/null; \
+                apt-get install --only-upgrade node-collector; \
+        fi"
 }
 
 # ssh to all droplets and execute a command
 function command_exec_all() {
-        [ -z "$*" ] \
-                && echo "Usage: $0 exec_all <command>" > /dev/stderr \
-                && return 1
-
+        [ -z "$*" ] && abort "Usage: $0 exec_all <command>"
         exec_ips "$(command_list_ips)" "$*"
 }
 
@@ -189,15 +188,16 @@ function exec_ips() {
 
         ips=$1
         shift
-        script="hostname -s && ($*)"
+        script="hostname -s; { $*; }"
+        echo "Dispatching..."
         for ip in $ips; do
-                echo
-                echo -n ">>>> $ip: "
-                # disable notice that the script expands on the client as this
-                # is the expected behavior
-                #shellcheck disable=SC2029
-                ssh -o "StrictHostKeyChecking no" "root@${ip}" "${script}" || true
+                # shellcheck disable=SC2029
+                echo "$(echo
+                        echo -n ">>>> $ip: "
+                        ssh -o "StrictHostKeyChecking no" "root@${ip}" "${script}" 2>/dev/stdout || true
+                )" &
         done
+        wait
 }
 
 # list all droplets without formatting
@@ -251,7 +251,7 @@ function create_image() {
 EOF
 
         request POST "/droplets" "@${body}" \
-                | jq .
+                | jq -r '.droplets[] | "Created: \(.id): \(.name)"'
 
 }
 
