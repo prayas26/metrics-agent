@@ -13,35 +13,35 @@ SVC_NAME=node-collector
 CRON=/etc/cron.daily/node-collector
 
 main() {
-        if command -v systemctl >/dev/null 2>&1; then
-                echo "Configure systemd..."
-                clean_systemd
-        elif command -v initctl >/dev/null 2>&1; then
-                echo "Configure upstart..."
-                clean_upstart
-        else
-                echo "Unknown init system" > /dev/stderr
-        fi
+	if command -v systemctl >/dev/null 2>&1; then
+		echo "Configure systemd..."
+		clean_systemd
+	elif command -v initctl >/dev/null 2>&1; then
+		echo "Configure upstart..."
+		clean_upstart
+	else
+		echo "Unknown init system" > /dev/stderr
+	fi
 
-        remove_cron
+	remove_cron
 }
 
 remove_cron() {
-        rm -f "${CRON}"
+	rm -f "${CRON}"
 	echo "cron removed"
 }
 
 clean_upstart() {
-        initctl stop ${SVC_NAME} || true
-        unlink /etc/init/${SVC_NAME}.conf || true
-        initctl reload-configuration || true
+	initctl stop ${SVC_NAME} || true
+	unlink /etc/init/${SVC_NAME}.conf || true
+	initctl reload-configuration || true
 }
 
 clean_systemd() {
-        systemctl stop ${SVC_NAME} || true
-        systemctl disable ${SVC_NAME}.service || true
-        unlink /etc/systemd/system/${SVC_NAME}.service || true
-        systemctl daemon-reload || true
+	systemctl stop ${SVC_NAME} || true
+	systemctl disable ${SVC_NAME}.service || true
+	unlink /etc/systemd/system/${SVC_NAME}.service || true
+	systemctl daemon-reload || true
 }
 
 main

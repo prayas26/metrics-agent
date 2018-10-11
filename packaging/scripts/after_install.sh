@@ -119,11 +119,11 @@ init_upstart() {
 
 
 dist() {
-        if [  -f /etc/os-release  ]; then
-                awk -F= '$1 == "ID" {gsub("\"", ""); print$2}' /etc/os-release
-        elif [ -f /etc/redhat-release ]; then
-                awk '{print tolower($1)}' /etc/redhat-release
-        fi
+	if [  -f /etc/os-release  ]; then
+		awk -F= '$1 == "ID" {gsub("\"", ""); print$2}' /etc/os-release
+	elif [ -f /etc/redhat-release ]; then
+		awk '{print tolower($1)}' /etc/redhat-release
+	fi
 }
 
 

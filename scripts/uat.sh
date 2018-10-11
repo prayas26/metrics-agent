@@ -13,8 +13,8 @@ CONTEXT=14661f
 OS=$(uname | tr '[:upper:]' '[:lower:]')
 TAG=node-collector-test-${USER}
 SUPPORTED_IMAGES="centos-6-x32 centos-6-x64 centos-7-x64 debian-8-x32 debian-8-x64 \
-        debian-9-x64 fedora-27-x64 fedora-28-x64 ubuntu-14-04-x32 ubuntu-14-04-x64 \
-        ubuntu-16-04-x32 ubuntu-16-04-x64 ubuntu-18-04-x64"
+	debian-9-x64 fedora-27-x64 fedora-28-x64 ubuntu-14-04-x32 ubuntu-14-04-x64 \
+	ubuntu-16-04-x32 ubuntu-16-04-x64 ubuntu-18-04-x64"
 
 JONES_SSH_FINGERPRINT="a1:bc:00:38:56:1f:d2:b1:8e:0d:4f:9c:f0:dd:66:6d"
 THOR_SSH_FINGERPRINT="c6:c6:01:e8:71:0a:58:02:2c:b3:e5:95:0e:b1:46:06"
@@ -29,229 +29,229 @@ USER_DATA_RPM="#!/bin/bash\n curl -s https://packagecloud.io/install/repositorie
 
 
 function main() {
-        [ -z "${AUTH_TOKEN}" ] \
-                && abort "AUTH_TOKEN is not set"
+	[ -z "${AUTH_TOKEN}" ] \
+		&& abort "AUTH_TOKEN is not set"
 
-        cmd=$1
-        shift
-        fn=command_$cmd
-        # disable requirement to quote 'fn' which would break this code
-        # shellcheck disable=SC2086
-        if [ "$(type -t ${fn})" = function ]; then
-                ${fn} "$*"
-        else
-                usage
-                exit 1
-        fi
+	cmd=$1
+	shift
+	fn=command_$cmd
+	# disable requirement to quote 'fn' which would break this code
+	# shellcheck disable=SC2086
+	if [ "$(type -t ${fn})" = function ]; then
+		${fn} "$*"
+	else
+		usage
+		exit 1
+	fi
 }
 
 function command_help() {
-        usage
+	usage
 }
 
 function usage() {
-        commands=$(grep -P '^function command_' "$0" \
-                | sed 's,function command_,,g' \
-                | sed 's,() {,,g' \
-                | sort \
-                | xargs)
+	commands=$(grep -P '^function command_' "$0" \
+		| sed 's,function command_,,g' \
+		| sed 's,() {,,g' \
+		| sort \
+		| xargs)
 
-        echo
-        echo "Usage: $0 [$commands]"
-        echo
+	echo
+	echo "Usage: $0 [$commands]"
+	echo
 }
 
 # delete all droplets tagged with $TAG
 function command_delete_all() {
-        confirm "Are you sure you want to delete all droplets with the tag ${TAG}?" \
-                || (echo "Aborted" && return 1)
+	confirm "Are you sure you want to delete all droplets with the tag ${TAG}?" \
+		|| (echo "Aborted" && return 1)
 
-        echo "Deleting..."
-        request DELETE "/droplets?tag_name=$TAG" \
-                | jq .
+	echo "Deleting..."
+	request DELETE "/droplets?tag_name=$TAG" \
+		| jq .
 }
 
 # list all droplet IP addresses tagged with $TAG
 function command_list_ips() {
-        list | jq -r '.droplets[].networks.v4[] | select(.type=="public") | .ip_address'
+	list | jq -r '.droplets[].networks.v4[] | select(.type=="public") | .ip_address'
 }
 
 # list all droplet IDs tagged with $TAG
 function command_list_ids() {
-        list | jq -r '.droplets[].id'
+	list | jq -r '.droplets[].id'
 }
 
 # list all droplets with all of their formatted metadata
 function command_list() {
-        list | jq .
+	list | jq .
 }
 
 function command_browse() {
-        launch "https://cloud.digitalocean.com/tags/$TAG?i=${CONTEXT}"
+	launch "https://cloud.digitalocean.com/tags/$TAG?i=${CONTEXT}"
 }
 
 # open all droplets in the browser
 function command_open_all() {
-        urls=$(command_list_ids | xargs -n1 -I{} echo https://cloud.digitalocean.com/droplets/{}/graphs?i=${CONTEXT} | tee /dev/stderr)
-        if confirm "Open these urls?"; then
-                for u in $urls; do
-                        launch "$u"
-                done
-        else
-                echo "Aborting"
-        fi
+	urls=$(command_list_ids | xargs -n1 -I{} echo https://cloud.digitalocean.com/droplets/{}/graphs?i=${CONTEXT} | tee /dev/stderr)
+	if confirm "Open these urls?"; then
+		for u in $urls; do
+			launch "$u"
+		done
+	else
+		echo "Aborting"
+	fi
 }
 
 # create a droplet for every SUPPORTED_IMAGE and automatically install node-collector
 # using either apt or yum
 function command_create_all() {
-        for i in $SUPPORTED_IMAGES; do
-                create_image "$i" &
-        done
-        wait
+	for i in $SUPPORTED_IMAGES; do
+		create_image "$i" &
+	done
+	wait
 
-        if confirm "Open the tag list page?"; then
-                launch "https://cloud.digitalocean.com/tags/$TAG?i=${CONTEXT}"
-        fi
+	if confirm "Open the tag list page?"; then
+		launch "https://cloud.digitalocean.com/tags/$TAG?i=${CONTEXT}"
+	fi
 }
 
 # ssh to all droplets and run <init system> status node-collector to verify
 # that it is indeed running
 function command_status_all() {
-        command_exec_all "if command -v systemctl 2&>/dev/null; then \
-                systemctl is-active node-collector; \
-        else \
-                initctl status node-collector; \
-        fi"
+	command_exec_all "if command -v systemctl 2&>/dev/null; then \
+		systemctl is-active node-collector; \
+	else \
+		initctl status node-collector; \
+	fi"
 }
 
 # ssh to all droplets and run yum/apt update to upgrade to the latest published
 # version of node-collector
 function command_update_all() {
-        command_exec_all "if command -v yum 2&>/dev/null; then \
-                yum check-update >/dev/null; \
-                yum update node-collector; \
-        else \
-                apt-get update >/dev/null; \
-                apt-get install --only-upgrade node-collector; \
-        fi"
+	command_exec_all "if command -v yum 2&>/dev/null; then \
+		yum check-update >/dev/null; \
+		yum update node-collector; \
+	else \
+		apt-get update >/dev/null; \
+		apt-get install --only-upgrade node-collector; \
+	fi"
 }
 
 # ssh to all droplets and execute a command
 function command_exec_all() {
-        [ -z "$*" ] && abort "Usage: $0 exec_all <command>"
-        exec_ips "$(command_list_ips)" "$*"
+	[ -z "$*" ] && abort "Usage: $0 exec_all <command>"
+	exec_ips "$(command_list_ips)" "$*"
 }
 
 # ssh to all debian-based droplets (ubuntu/debian) and execute a command
 function command_exec_deb() {
-        [ -z "$*" ] \
-                && abort "Usage: $0 exec_all <command>"
+	[ -z "$*" ] \
+		&& abort "Usage: $0 exec_all <command>"
 
-        ips=$(list | \
-                jq -r '.droplets[]
-                | select(
-                        .image.distribution=="Debian"
-                        or
-                        .image.distribution=="Ubuntu"
-                )
-                | .networks.v4[]
-                | select(.type=="public")
-                | .ip_address')
+	ips=$(list | \
+		jq -r '.droplets[]
+		| select(
+			.image.distribution=="Debian"
+			or
+			.image.distribution=="Ubuntu"
+		)
+		| .networks.v4[]
+		| select(.type=="public")
+		| .ip_address')
 
-        exec_ips "$ips" "$*"
+	exec_ips "$ips" "$*"
 }
 
 
 # ssh to all rpm-based droplets (centos/fedora) and execute a command
 function command_exec_rpm() {
-        [ -z "$*" ] \
-                && abort "Usage: $0 exec_all <command>"
+	[ -z "$*" ] \
+		&& abort "Usage: $0 exec_all <command>"
 
-        ips=$(list | \
-                jq -r '.droplets[]
-                | select(
-                        .image.distribution=="CentOS"
-                        or
-                        .image.distribution=="Fedora"
-                )
-                | .networks.v4[]
-                | select(.type=="public")
-                | .ip_address')
+	ips=$(list | \
+		jq -r '.droplets[]
+		| select(
+			.image.distribution=="CentOS"
+			or
+			.image.distribution=="Fedora"
+		)
+		| .networks.v4[]
+		| select(.type=="public")
+		| .ip_address')
 
-        exec_ips "$ips" "$*"
+	exec_ips "$ips" "$*"
 }
 
 function exec_ips() {
-        { [ -z "${1:-}" ] || [ -z "${2:-}" ]; } \
-                && abort "Usage: exec_all <ips> <command>"
+	{ [ -z "${1:-}" ] || [ -z "${2:-}" ]; } \
+		&& abort "Usage: exec_all <ips> <command>"
 
-        ips=$1
-        shift
-        script="hostname -s; { $*; }"
-        echo "Dispatching..."
-        for ip in $ips; do
-                # shellcheck disable=SC2029
-                echo "$(echo
-                        echo -n ">>>> $ip: "
-                        ssh -o "StrictHostKeyChecking no" "root@${ip}" "${script}" 2>/dev/stdout || true
-                )" &
-        done
-        wait
+	ips=$1
+	shift
+	script="hostname -s; { $*; }"
+	echo "Dispatching..."
+	for ip in $ips; do
+		# shellcheck disable=SC2029
+		echo "$(echo
+			echo -n ">>>> $ip: "
+			ssh -o "StrictHostKeyChecking no" "root@${ip}" "${script}" 2>/dev/stdout || true
+		)" &
+	done
+	wait
 }
 
 # list all droplets without formatting
 function list() {
-        request GET "/droplets?tag_name=$TAG"
+	request GET "/droplets?tag_name=$TAG"
 }
 
 function list_deb_ips() {
-        list | \
-                jq -r '.droplets[]
-                | select(
-                        .image.distribution=="Debian"
-                        or
-                        .image.distribution=="Ubuntu"
-                )
-                | .networks.v4[]
-                | select(.type=="public")
-                | .ip_address'
+	list | \
+		jq -r '.droplets[]
+		| select(
+			.image.distribution=="Debian"
+			or
+			.image.distribution=="Ubuntu"
+		)
+		| .networks.v4[]
+		| select(.type=="public")
+		| .ip_address'
 }
 
 # create a droplet with the provided image
 function create_image() {
-        image=$1
-        if [ -z "$image" ]; then
-                abort "Usage: create_image <image>"
-        else
-                echo "Creating image $image..."
-        fi
+	image=$1
+	if [ -z "$image" ]; then
+		abort "Usage: create_image <image>"
+	else
+		echo "Creating image $image..."
+	fi
 
-        user_data=${USER_DATA_RPM}
-        [[ "$image" =~ debian|ubuntu ]] && user_data=${USER_DATA_DEB}
+	user_data=${USER_DATA_RPM}
+	[[ "$image" =~ debian|ubuntu ]] && user_data=${USER_DATA_DEB}
 
-        body=$(mktemp)
-        cat <<EOF > "$body"
-        {
-                "name": "$image",
-                "region": "nyc3",
-                "size": "s-1vcpu-1gb",
-                "image": "$image",
-                "ssh_keys": [
-                        "${JONES_SSH_FINGERPRINT}",
-                        "${THOR_SSH_FINGERPRINT}",
-                        "${EVAN_SSH_FINGERPRINT}",
-                        "${SNYDER_SSH_FINGERPRINT}"
-                ],
-                "backups": false,
-                "ipv6": false,
-                "user_data": "${user_data}",
-                "tags": [ "${TAG}" ]
-        }
+	body=$(mktemp)
+	cat <<EOF > "$body"
+	{
+		"name": "$image",
+		"region": "nyc3",
+		"size": "s-1vcpu-1gb",
+		"image": "$image",
+		"ssh_keys": [
+			"${JONES_SSH_FINGERPRINT}",
+			"${THOR_SSH_FINGERPRINT}",
+			"${EVAN_SSH_FINGERPRINT}",
+			"${SNYDER_SSH_FINGERPRINT}"
+		],
+		"backups": false,
+		"ipv6": false,
+		"user_data": "${user_data}",
+		"tags": [ "${TAG}" ]
+	}
 EOF
 
-        request POST "/droplets" "@${body}" \
-                | jq -r '.droplets[] | "Created: \(.id): \(.name)"'
+	request POST "/droplets" "@${body}" \
+		| jq -r '.droplets[] | "Created: \(.id): \(.name)"'
 
 }
 
@@ -266,58 +266,58 @@ EOF
 #   request "POST" "/droplets" '{"some": "data"}'
 #   request "DELETE" "/droplets/1234567"
 function request() {
-        METHOD=${1:-}
-        URL=${2:-}
-        DATA=${3:-}
+	METHOD=${1:-}
+	URL=${2:-}
+	DATA=${3:-}
 
-        [ -z "$METHOD" ] && abort "Usage: request [METHOD] [PATH] [DATA]"
+	[ -z "$METHOD" ] && abort "Usage: request [METHOD] [PATH] [DATA]"
 
-        if [[ ! "$URL" =~ ^/ ]] || [[ "$URL" =~ /v2 ]]; then
-                abort "URL param should be a relative path not including v2 (e.g. /droplets). Got '$URL'"
-        fi
+	if [[ ! "$URL" =~ ^/ ]] || [[ "$URL" =~ /v2 ]]; then
+		abort "URL param should be a relative path not including v2 (e.g. /droplets). Got '$URL'"
+	fi
 
 
-        curl -SsL \
-                -X "$METHOD" \
-                -H "Content-Type: application/json" \
-                -H "Authorization: Bearer ${AUTH_TOKEN}" \
-                -d "$DATA" \
-                "https://api.digitalocean.com/v2$URL"
+	curl -SsL \
+		-X "$METHOD" \
+		-H "Content-Type: application/json" \
+		-H "Authorization: Bearer ${AUTH_TOKEN}" \
+		-d "$DATA" \
+		"https://api.digitalocean.com/v2$URL"
 }
 
 # ask the user for input
 function ask() {
-        question=${1:-}
-        [ -z "$question" ] && abort "Usage: ask <question>"
-        read -p "$question " -n 1 -r
-        echo -n "$REPLY"
+	question=${1:-}
+	[ -z "$question" ] && abort "Usage: ask <question>"
+	read -p "$question " -n 1 -r
+	echo -n "$REPLY"
 }
 
 # ask the user for a yes or no answer. Returns 0 for yes or 1 for no.
 function confirm() {
-        question="$1 (y/n)"
-        yn=$(ask "$question")
-        echo
-        [[ $yn =~ ^[Yy]$ ]] && return 0
-        return 1
+	question="$1 (y/n)"
+	yn=$(ask "$question")
+	echo
+	[[ $yn =~ ^[Yy]$ ]] && return 0
+	return 1
 }
 
 # launch a uri with the system's default application (browser)
 function launch() {
-        uri=${1:-}
-        [ -z "$uri" ] && abort "Usage: launch <uri>"
+	uri=${1:-}
+	[ -z "$uri" ] && abort "Usage: launch <uri>"
 
-        if [[ "$OS" =~ linux ]]; then
-                xdg-open "$uri"
-        else
-                open "$uri"
-        fi
+	if [[ "$OS" =~ linux ]]; then
+		xdg-open "$uri"
+	else
+		open "$uri"
+	fi
 }
 
 function abort() {
-        read -r line func file <<< "$(caller 0)"
-        echo "ERROR in $file.$func:$line: $1" > /dev/stderr # we can use better logging here
-        exit 1
+	read -r line func file <<< "$(caller 0)"
+	echo "ERROR in $file.$func:$line: $1" > /dev/stderr # we can use better logging here
+	exit 1
 }
 
 # never put anything below this line. This is to prevent any partial execution
