@@ -32,7 +32,8 @@ function main() {
 	[ -z "${AUTH_TOKEN}" ] \
 		&& abort "AUTH_TOKEN is not set"
 
-	cmd=$1
+	cmd=${1:-}
+	[ -z "$cmd" ] && usage && exit 0
 	shift
 	fn=command_$cmd
 	# disable requirement to quote 'fn' which would break this code
@@ -45,24 +46,28 @@ function main() {
 	fi
 }
 
+# show the help text
 function command_help() {
 	usage
 }
 
+# show script usage. This parses every function named command_ from this script
+# and displays it as a possible command
 function usage() {
-	commands=$(grep -P '^function command_' "$0" \
+	echo
+	echo "Usage: $0 [command]"
+	echo
+	echo "Possible commands: "
+	grep -P '^function command_' "$0" \
 		| sed 's,function command_,,g' \
 		| sed 's,() {,,g' \
 		| sort \
-		| xargs)
-
-	echo
-	echo "Usage: $0 [$commands]"
+		| xargs -n1 -I{} echo "  {}"
 	echo
 }
 
 # delete all droplets tagged with $TAG
-function command_delete_all() {
+function command_delete() {
 	confirm "Are you sure you want to delete all droplets with the tag ${TAG}?" \
 		|| (echo "Aborted" && return 1)
 
@@ -73,12 +78,12 @@ function command_delete_all() {
 
 # list all droplet IP addresses tagged with $TAG
 function command_list_ips() {
-	list | jq -r '.droplets[].networks.v4[] | select(.type=="public") | .ip_address'
+	list_ips
 }
 
 # list all droplet IDs tagged with $TAG
 function command_list_ids() {
-	list | jq -r '.droplets[].id'
+	list_ids
 }
 
 # list all droplets with all of their formatted metadata
@@ -86,12 +91,13 @@ function command_list() {
 	list | jq .
 }
 
+# open the browser to show the list of droplets associated with $TAG
 function command_browse() {
 	launch "https://cloud.digitalocean.com/tags/$TAG?i=${CONTEXT}"
 }
 
-# open all droplets in the browser
-function command_open_all() {
+# graphs all droplets in the browser
+function command_graphs() {
 	urls=$(command_list_ids | xargs -n1 -I{} echo https://cloud.digitalocean.com/droplets/{}/graphs?i=${CONTEXT} | tee /dev/stderr)
 	if confirm "Open these urls?"; then
 		for u in $urls; do
@@ -104,7 +110,7 @@ function command_open_all() {
 
 # create a droplet for every SUPPORTED_IMAGE and automatically install node-collector
 # using either apt or yum
-function command_create_all() {
+function command_create() {
 	for i in $SUPPORTED_IMAGES; do
 		create_image "$i" &
 	done
@@ -117,8 +123,8 @@ function command_create_all() {
 
 # ssh to all droplets and run <init system> status node-collector to verify
 # that it is indeed running
-function command_status_all() {
-	command_exec_all "if command -v systemctl 2&>/dev/null; then \
+function command_status() {
+	command_exec "if command -v systemctl 2&>/dev/null; then \
 		systemctl is-active node-collector; \
 	else \
 		initctl status node-collector; \
@@ -127,64 +133,45 @@ function command_status_all() {
 
 # ssh to all droplets and run yum/apt update to upgrade to the latest published
 # version of node-collector
-function command_update_all() {
-	command_exec_all "if command -v yum 2&>/dev/null; then \
-		yum check-update >/dev/null; \
-		yum update node-collector; \
-	else \
-		apt-get update >/dev/null; \
-		apt-get install --only-upgrade node-collector; \
-	fi"
+function command_update() {
+	command_exec "/bin/bash /opt/digitalocean/node_collector/scripts/update.sh"
 }
 
 # ssh to all droplets and execute a command
-function command_exec_all() {
-	[ -z "$*" ] && abort "Usage: $0 exec_all <command>"
-	exec_ips "$(command_list_ips)" "$*"
+function command_exec() {
+	[ -z "$*" ] && abort "Usage: $0 exec <command>"
+	exec_ips "$(list_ips)" "$*"
 }
 
 # ssh to all debian-based droplets (ubuntu/debian) and execute a command
 function command_exec_deb() {
-	[ -z "$*" ] \
-		&& abort "Usage: $0 exec_all <command>"
-
-	ips=$(list | \
-		jq -r '.droplets[]
-		| select(
-			.image.distribution=="Debian"
-			or
-			.image.distribution=="Ubuntu"
-		)
-		| .networks.v4[]
-		| select(.type=="public")
-		| .ip_address')
-
-	exec_ips "$ips" "$*"
+	[ -z "$*" ] && abort "Usage: $0 exec_deb <command>"
+	exec_ips "$(list_ips_deb)" "$*"
 }
-
 
 # ssh to all rpm-based droplets (centos/fedora) and execute a command
 function command_exec_rpm() {
-	[ -z "$*" ] \
-		&& abort "Usage: $0 exec_all <command>"
+	[ -z "$*" ] && abort "Usage: $0 exec_rpm <command>"
 
-	ips=$(list | \
-		jq -r '.droplets[]
-		| select(
-			.image.distribution=="CentOS"
-			or
-			.image.distribution=="Fedora"
-		)
-		| .networks.v4[]
-		| select(.type=="public")
-		| .ip_address')
-
-	exec_ips "$ips" "$*"
+	exec_ips "$(list_ips_rpm)" "$*"
 }
 
+# list droplet IP addresses for deb based distros
+function command_list_ips_deb() {
+	list_ips_deb
+}
+
+# list droplet IP addresses for rpm based distros
+function command_list_ips_rpm() {
+	list_ips_rpm
+}
+
+# execute a command against a list of IP addresses
+# Usage:   exec_ips <ips> <command>
+# Example: exec_ips "$(list_ips_rpm)" "yum update node collector"
 function exec_ips() {
 	{ [ -z "${1:-}" ] || [ -z "${2:-}" ]; } \
-		&& abort "Usage: exec_all <ips> <command>"
+		&& abort "Usage: exec <ips> <command>"
 
 	ips=$1
 	shift
@@ -200,18 +187,50 @@ function exec_ips() {
 	wait
 }
 
+# ssh to each droplet one after another. After each connection you will be
+# connected to the next in the list unless you press CTRL-C
+function command_ssh() {
+	for ip in $(list_ips); do
+		echo -n ">>>> $ip: "
+		# shellcheck disable=SC2029
+		ssh -o "StrictHostKeyChecking no" "root@${ip}"
+		sleep 0.2
+	done
+}
+
 # list all droplets without formatting
 function list() {
 	request GET "/droplets?tag_name=$TAG"
 }
 
-function list_deb_ips() {
+function list_ips() {
+	list | jq -r '.droplets[].networks.v4[] | select(.type=="public") | .ip_address'
+}
+
+function list_ids() {
+	list | jq -r '.droplets[].id'
+}
+
+function list_ips_deb() {
 	list | \
 		jq -r '.droplets[]
 		| select(
 			.image.distribution=="Debian"
 			or
 			.image.distribution=="Ubuntu"
+		)
+		| .networks.v4[]
+		| select(.type=="public")
+		| .ip_address'
+}
+
+function list_ips_rpm() {
+	list | \
+		jq -r '.droplets[]
+		| select(
+			.image.distribution=="CentOS"
+			or
+			.image.distribution=="Fedora"
 		)
 		| .networks.v4[]
 		| select(.type=="public")
@@ -251,7 +270,7 @@ function create_image() {
 EOF
 
 	request POST "/droplets" "@${body}" \
-		| jq -r '.droplets[] | "Created: \(.id): \(.name)"'
+		| jq -r '.droplet | "Created: \(.id): \(.name)"'
 
 }
 

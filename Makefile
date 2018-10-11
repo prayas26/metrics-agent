@@ -53,9 +53,10 @@ cover_profile      := $(out)/.coverprofile
 # output packages
 # deb files should end with _version_arch.deb
 # rpm files should end with -version-release.arch.rpm
-deb_package := $(package_dir)/$(pkg_project)_$(version)_$(PKG_ARCH).deb
-rpm_package := $(package_dir)/$(pkg_project)-$(version)-1.$(PKG_ARCH).rpm
-tar_package := $(subst .deb,.tar.gz,$(deb_package))
+base_package := $(package_dir)/$(pkg_project)_$(version)_$(PKG_ARCH).BASE.deb
+deb_package  := $(package_dir)/$(pkg_project)_$(version)_$(PKG_ARCH).deb
+rpm_package  := $(package_dir)/$(pkg_project)-$(version)-1.$(PKG_ARCH).rpm
+tar_package  := $(subst .deb,.tar.gz,$(deb_package))
 
 #############
 ## targets ##
@@ -88,6 +89,7 @@ shellcheck: $(cache)/shellcheck
 $(cache)/shellcheck: $(call find,sh)
 	$(print)
 	$(mkdir)
+	@shellcheck --version
 	@shellcheck $^
 	$(touch)
 
@@ -110,8 +112,8 @@ $(out)/scripts/node-collector-install.sh: ./scripts/install.sh
 	$(mkdir)
 	$(cp)
 
-deb: $(deb_package)
-$(deb_package): $(binary)
+# used to create a base package with common functionality
+$(base_package): $(binary)
 	$(print)
 	$(mkdir)
 	@$(fpm) --output-type deb \
@@ -132,17 +134,29 @@ $(deb_package): $(binary)
 		--replaces do-agent \
 		--after-install packaging/scripts/after_install.sh \
 		--after-remove packaging/scripts/after_remove.sh \
-		--deb-group nobody \
-		--deb-user nogroup \
 		$<=/usr/local/bin/node_collector \
 		scripts/update.sh=/opt/digitalocean/node_collector/scripts/update.sh
+.INTERMEDIATE: $(base_package)
+
+deb: $(deb_package)
+$(deb_package): $(base_package)
+	$(print)
+	$(mkdir)
+	@$(fpm) --output-type deb \
+		--input-type deb \
+		--force \
+		--depends cron \
+		--deb-group nobody \
+		--deb-user nogroup \
+		-p $@ \
+		$<
 	chown -R $(USER):$(USER) target
 # print information about the compiled deb package
 	@docker run --rm -it -v ${PWD}:/tmp -w /tmp ubuntu:xenial /bin/bash -c 'dpkg --info $@ && dpkg -c $@'
 
 
 rpm: $(rpm_package)
-$(rpm_package): $(deb_package)
+$(rpm_package): $(base_package)
 	$(print)
 	$(mkdir)
 	@$(fpm) \
@@ -153,13 +167,13 @@ $(rpm_package): $(deb_package)
 		--rpm-user nobody \
 		--force \
 		-p $@ \
-		$^
+		$<
 	chown -R $(USER):$(USER) target
 # print information about the compiled rpm package
 	@docker run --rm -it -v ${PWD}:/tmp -w /tmp centos:7 rpm -qilp $@
 
 tar: $(tar_package)
-$(tar_package): $(deb_package)
+$(tar_package): $(base_package)
 	$(print)
 	$(mkdir)
 	@$(fpm) \
@@ -167,7 +181,7 @@ $(tar_package): $(deb_package)
 		--input-type deb \
 		--force \
 		-p $@ \
-		$^
+		$<
 	chown -R $(USER):$(USER) target
 # print all files within the archive
 	@docker run --rm -it -v ${PWD}:/tmp -w /tmp ubuntu:xenial tar -ztvf $@
