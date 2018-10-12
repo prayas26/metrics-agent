@@ -26,10 +26,10 @@ function install_package() {
 
 	case "$dist" in
 		debian|ubuntu)
-			apt-get install -y "$1"
+			apt-get install -q -y "$1"
 			;;
 		centos|fedora)
-			yum -y install "$1"
+			yum -q -y install "$1"
 			;;
 		*)
 			not_supported
@@ -67,8 +67,7 @@ function not_supported() {
 }
 
 function require_package() {
-	[ -z "${1:-}" ] && \
-		abort "Usage: ${FUNCNAME[0]} <package>"
+	[ -z "${1:-}" ] && abort "Usage: ${FUNCNAME[0]} <package>"
 
 	pkg="$1"
 
