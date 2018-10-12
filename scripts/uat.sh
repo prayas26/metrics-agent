@@ -29,9 +29,6 @@ USER_DATA_RPM="#!/bin/bash\n curl -sL https://packagecloud.io/install/repositori
 
 
 function main() {
-	[ -z "${AUTH_TOKEN}" ] \
-		&& abort "AUTH_TOKEN is not set"
-
 	cmd=${1:-}
 	[ -z "$cmd" ] && usage && exit 0
 	shift
@@ -145,15 +142,12 @@ function command_exec() {
 
 # ssh to all debian-based droplets (ubuntu/debian) and execute a command
 function command_exec_deb() {
-	[ -z "$*" ] && abort "Usage: $0 exec_deb <command>"
-	exec_ips "$(list_ips_deb)" "$*"
+	exec_deb "$*"
 }
 
 # ssh to all rpm-based droplets (centos/fedora) and execute a command
 function command_exec_rpm() {
-	[ -z "$*" ] && abort "Usage: $0 exec_rpm <command>"
-
-	exec_ips "$(list_ips_rpm)" "$*"
+	exec_rpm "$*"
 }
 
 # list droplet IP addresses for deb based distros
@@ -180,7 +174,7 @@ function exec_ips() {
 	for ip in $ips; do
 		# shellcheck disable=SC2029
 		echo "$(echo
-			echo -n ">>>> $ip: "
+			echo -n "$(tput setaf 2)>>>> $ip: $(tput sgr 0)"
 			ssh -o "StrictHostKeyChecking no" \
 				-o "LogLevel=ERROR" \
 				"root@${ip}" "${script}" 2>/dev/stdout || true
@@ -198,6 +192,25 @@ function command_ssh() {
 		ssh -o "StrictHostKeyChecking no" "root@${ip}"
 		sleep 0.2
 	done
+}
+
+# show version information about remote installed versions
+function command_versions() {
+	exec_deb 'apt-cache policy node-collector'
+	exec_rpm 'yum --cacheonly list node-collector'
+}
+
+
+# ssh to all debian-based droplets (ubuntu/debian) and execute a command
+function exec_deb() {
+	[ -z "$*" ] && abort "Usage: $0 exec_deb <command>"
+	exec_ips "$(list_ips_deb)" "$*"
+}
+
+# ssh to all rpm-based droplets (centos/fedora) and execute a command
+function exec_rpm() {
+	[ -z "$*" ] && abort "Usage: $0 exec_rpm <command>"
+	exec_ips "$(list_ips_rpm)" "$*"
 }
 
 # list all droplets without formatting
@@ -287,6 +300,8 @@ EOF
 #   request "POST" "/droplets" '{"some": "data"}'
 #   request "DELETE" "/droplets/1234567"
 function request() {
+	[ -z "${AUTH_TOKEN:-}" ] && abort "AUTH_TOKEN is not set"
+
 	METHOD=${1:-}
 	URL=${2:-}
 	DATA=${3:-}
