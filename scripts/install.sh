@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ue
+set -ueo pipefail
 
 # REPO="node-collector"
 # TODO use metadata api to determine beta
@@ -22,7 +22,7 @@ function main() {
 
 function install_package() {
 	[ -z "${1:-}" ] && \
-		abort "Usage: install_package <package>"
+		abort "Usage: ${FUNCNAME[0]} <package>"
 
 	case "$dist" in
 		debian|ubuntu)
@@ -68,7 +68,7 @@ function not_supported() {
 
 function require_package() {
 	[ -z "${1:-}" ] && \
-		abort "Usage: require_package <package>"
+		abort "Usage: ${FUNCNAME[0]} <package>"
 
 	pkg="$1"
 

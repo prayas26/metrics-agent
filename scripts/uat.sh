@@ -181,7 +181,9 @@ function exec_ips() {
 		# shellcheck disable=SC2029
 		echo "$(echo
 			echo -n ">>>> $ip: "
-			ssh -o "StrictHostKeyChecking no" "root@${ip}" "${script}" 2>/dev/stdout || true
+			ssh -o "StrictHostKeyChecking no" \
+				-o "LogLevel=ERROR" \
+				"root@${ip}" "${script}" 2>/dev/stdout || true
 		)" &
 	done
 	wait
