@@ -23,9 +23,9 @@ SNYDER_SSH_FINGERPRINT="47:31:9b:8b:87:a7:2d:26:79:17:87:83:53:65:d4:b4"
 
 # disabling literan '\n' error in shellcheck since that is the expected behavior
 # shellcheck disable=SC1117
-USER_DATA_DEB="#!/bin/bash\n apt-get update && apt-get install -y curl; curl -s https://packagecloud.io/install/repositories/digitalocean-insights/node-collector-beta/script.deb.sh | sudo bash\n apt install -y node-collector"
+USER_DATA_DEB="#!/bin/bash\n apt-get update && apt-get install -y curl; curl -sL https://packagecloud.io/install/repositories/digitalocean-insights/node-collector-beta/script.deb.sh | sudo bash\n apt install -y node-collector"
 # shellcheck disable=SC1117
-USER_DATA_RPM="#!/bin/bash\n curl -s https://packagecloud.io/install/repositories/digitalocean-insights/node-collector-beta/script.rpm.sh | sudo bash\n yum install -y node-collector"
+USER_DATA_RPM="#!/bin/bash\n curl -sL https://packagecloud.io/install/repositories/digitalocean-insights/node-collector-beta/script.rpm.sh | sudo bash\n yum install -y node-collector"
 
 
 function main() {
@@ -171,7 +171,7 @@ function command_list_ips_rpm() {
 # Example: exec_ips "$(list_ips_rpm)" "yum update node collector"
 function exec_ips() {
 	{ [ -z "${1:-}" ] || [ -z "${2:-}" ]; } \
-		&& abort "Usage: exec <ips> <command>"
+		&& abort "Usage: ${FUNCNAME[0]} <ips> <command>"
 
 	ips=$1
 	shift
@@ -243,7 +243,7 @@ function list_ips_rpm() {
 function create_image() {
 	image=$1
 	if [ -z "$image" ]; then
-		abort "Usage: create_image <image>"
+		abort "Usage: ${FUNCNAME[0]} <image>"
 	else
 		echo "Creating image $image..."
 	fi
@@ -291,7 +291,7 @@ function request() {
 	URL=${2:-}
 	DATA=${3:-}
 
-	[ -z "$METHOD" ] && abort "Usage: request [METHOD] [PATH] [DATA]"
+	[ -z "$METHOD" ] && abort "Usage: ${FUNCNAME[0]} [METHOD] [PATH] [DATA]"
 
 	if [[ ! "$URL" =~ ^/ ]] || [[ "$URL" =~ /v2 ]]; then
 		abort "URL param should be a relative path not including v2 (e.g. /droplets). Got '$URL'"
@@ -309,7 +309,7 @@ function request() {
 # ask the user for input
 function ask() {
 	question=${1:-}
-	[ -z "$question" ] && abort "Usage: ask <question>"
+	[ -z "$question" ] && abort "Usage: ${FUNCNAME[0]} <question>"
 	read -p "$question " -n 1 -r
 	echo -n "$REPLY"
 }
@@ -326,7 +326,7 @@ function confirm() {
 # launch a uri with the system's default application (browser)
 function launch() {
 	uri=${1:-}
-	[ -z "$uri" ] && abort "Usage: launch <uri>"
+	[ -z "$uri" ] && abort "Usage: ${FUNCNAME[0]} <uri>"
 
 	if [[ "$OS" =~ linux ]]; then
 		xdg-open "$uri"
@@ -335,9 +335,10 @@ function launch() {
 	fi
 }
 
+# abort with an error message
 function abort() {
 	read -r line func file <<< "$(caller 0)"
-	echo "ERROR in $file.$func:$line: $1" > /dev/stderr # we can use better logging here
+	echo "ERROR in $file:$func:$line: $1" > /dev/stderr
 	exit 1
 }
 

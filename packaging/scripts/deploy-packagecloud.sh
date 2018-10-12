@@ -1,19 +1,16 @@
 #!/bin/bash
 set -ueo pipefail
 
-# This script fails for 'PACKAGECLOUD_TOKEN: unbound variable' when the env var
-# is unset. This var is required for execution of package_cloud. This snippet
-# is here just in case.
-[ -z "$PACKAGECLOUD_TOKEN" ] && \
-	echo "PACKAGECLOUD_TOKEN is unset and required" && \
-	exit 1
-
 UBUNTU_VERSIONS="trusty utopic vivid wily xenial yakkety zesty artful bionic"
 DEBIAN_VERSIONS="wheezy jessie stretch buster"
 RHEL_VERSIONS="6 7"
 FEDORA_VERSIONS="27 28"
 
 main() {
+	[ -z "${PACKAGECLOUD_TOKEN:-}" ] && \
+		echo "PACKAGECLOUD_TOKEN is unset and required" && \
+		exit 1
+
 	for uv in $UBUNTU_VERSIONS; do
 		package_cloud push \
 			"digitalocean-insights/node-collector-beta/ubuntu/$uv" \
