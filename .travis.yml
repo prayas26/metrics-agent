@@ -60,6 +60,7 @@ deploy:
     acl: public_read
     skip_cleanup: true
     detect_encoding: true
+    local_dir: target/scripts
     access_key_id:
       secure: "ORifNCA4hjjcbFAmNa1gH1KWp/QYSiMZBgrKTXHvpB82Skp9zFUJ0CgGLw/IUZuMqKm3MzzL9pZi/Aq56PJmegsl0jEe4xWaQYFZQyGCKg61/kxDhjkE4wuVObCp8RYNbNOUL+gk5Roxp3TtP3cSyNhvkhUGYe7O4JMV0aMbklFGtR5+wt0BmRfZiZ059B0eIO/pb78DPrO5cSnN9tSlBemMFzF+Sdkg4pTZcw5BzFXnkstzxCP8B6ogyhDKbNIudS/Yb1iKq2Gr5laVWSSzGbK42dDbdOZ4OnWmBrUtYIkSAhmKKCY6lvtPozmZRpeqbsRpwkxLEcBjgFUFGp8eLjCDEt8JLXpC3mTOasEe+rX5jBU0L2/eYgr7MW9HeEWJDLZkIYw9uSZxyRZaPe53HGGzvVOtA1MkDWcIoww9egyhJbEyLjUpoW06DYAHG9MlWIiTWTLc4KT+I0hGvLzJGtPkQp4MZVUOlzgkGR49bxs6uhMWaOTzhi8hyE+DJdbCVndqz6yaLzqGorcKlQy134jtlwIVMglMFOEMGZwbrE71qR+BGGRYBdV1a6JoickvI6qk2NrzPVnuFKDiQMnSCWv/NYVGIdWyqV5CXv2wgnUQFphpRP9x88ha/JlLbMmA5xlWU4PQfH5TG/1Q6Iu9LiT8C6Rq5AgtpolEbKNoLls="
     secret_access_key:
