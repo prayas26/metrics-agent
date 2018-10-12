@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -ueo pipefail
 
 UBUNTU_VERSIONS="trusty utopic vivid wily xenial yakkety zesty artful bionic"

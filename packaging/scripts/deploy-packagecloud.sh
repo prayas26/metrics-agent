@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -ueo pipefail
 
 UBUNTU_VERSIONS="trusty utopic vivid wily xenial yakkety zesty artful bionic"
@@ -40,6 +40,10 @@ main() {
 
 
 package_cloud () {
+	[ -z "${PACKAGECLOUD_TOKEN:-}" ] && \
+		echo "PACKAGECLOUD_TOKEN is unset and required" && \
+		exit 1
+
 	docker run -e "PACKAGECLOUD_TOKEN=${PACKAGECLOUD_TOKEN}" \
 		-v "$PWD:/tmp" \
 		-w /tmp \
