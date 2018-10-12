@@ -21,11 +21,18 @@ THOR_SSH_FINGERPRINT="c6:c6:01:e8:71:0a:58:02:2c:b3:e5:95:0e:b1:46:06"
 EVAN_SSH_FINGERPRINT="b9:40:22:bd:fb:d8:fa:fa:4e:11:d9:8e:58:e9:41:73"
 SNYDER_SSH_FINGERPRINT="47:31:9b:8b:87:a7:2d:26:79:17:87:83:53:65:d4:b4"
 
-# disabling literan '\n' error in shellcheck since that is the expected behavior
+# disabling literal '\n' error in shellcheck since that is the expected
+# behavior because it will be added to the JSON request body and
+# executed/expanded on the server
 # shellcheck disable=SC1117
-USER_DATA_DEB="#!/bin/bash\n apt-get update && apt-get install -y curl; curl -sL https://packagecloud.io/install/repositories/digitalocean-insights/node-collector-beta/script.deb.sh | sudo bash\n apt install -y node-collector"
+USER_DATA_DEB="#!/bin/bash \n\
+[ -z \`command -v curl\` ] && apt-get -qq update && apt-get install -q -y curl \n\
+curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/node-collector-install.sh | sudo bash"
+
 # shellcheck disable=SC1117
-USER_DATA_RPM="#!/bin/bash\n curl -sL https://packagecloud.io/install/repositories/digitalocean-insights/node-collector-beta/script.rpm.sh | sudo bash\n yum install -y node-collector"
+USER_DATA_RPM="#!/bin/bash \n\
+[ -z \`command -v curl\` ] && yum -y install curl \n\
+curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/node-collector-install.sh | sudo bash"
 
 
 function main() {
@@ -198,6 +205,11 @@ function command_ssh() {
 function command_versions() {
 	exec_deb 'apt-cache policy node-collector'
 	exec_rpm 'yum --cacheonly list node-collector'
+}
+
+function command_create_status() {
+	list \
+		| jq -r '.droplets[] | "\(.id) [\(.name)] \(.status)"'
 }
 
 
