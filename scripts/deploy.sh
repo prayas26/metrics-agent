@@ -52,7 +52,7 @@ function main() {
 function usage() {
 	cat <<-EOF
 
-	Usage:   VERSION=[version] $0 [cmd]
+	Usage:   VERSION=<version> $0 <cmd>
 	Example: VERSION=v0.0.1 $0 spaces
 	
 	Commands:
@@ -71,7 +71,7 @@ function deploy_spaces() {
 	aws s3 \
 		--endpoint-url https://nyc3.digitaloceanspaces.com \
 		cp ./target/scripts/node-collector-install.sh \
-		s3://insights/
+		s3://insights/node-collector-install.sh
 }
 
 
@@ -182,7 +182,7 @@ function promote() {
 	target=${3:-}
 
 	{ [ -z "$distro" ] || [ -z "$distro_release" ] || [ -z "$target" ]; } \
-		&& abort "Usage: promote [distro] [distro_release] [target]"
+		&& abort "Usage: promote <distro> <distro_release> <target>"
 
 	package_cloud promote \
 		"digitalocean-insights/node-collector-beta/$distro/$distro_release" \
@@ -206,9 +206,9 @@ function aws() {
 		"$@"
 }
 
-# Make an HTTP request to the API. The DATA and CONTENT_TYPE params are optional
+# Make an HTTP request to the API
 #
-# Usage: github [METHOD] [PATH] [DATA] [CONTENT_TYPE]
+# Usage: github <METHOD> <PATH> [DATA] [CONTENT_TYPE]
 #
 # Examples:
 #   github "GET" "/droplets"
@@ -223,7 +223,7 @@ function github() {
 	DATA=${3:-}
 	CONTENT_TYPE=${4:-application/json}
 
-	[ -z "$METHOD" ] && abort "Usage: ${FUNCNAME[0]} [METHOD] [PATH] [DATA]"
+	[ -z "$METHOD" ] && abort "Usage: ${FUNCNAME[0]} <METHOD> <PATH> [DATA] [CONTENT_TYPE]"
 
 	if [[ ! "$URL" =~ ^/ ]] || [[ "$URL" =~ /v2 ]]; then
 		abort "URL param should be a relative path not including v2 (e.g. /droplets). Got '$URL'"
@@ -298,5 +298,62 @@ function abort() {
 	echo "ERROR in $file:$func:$line: $1" > /dev/stderr
 	exit 1
 }
+
+# send a slack notification
+# Usage: notify_slack <success> <msg> [link]
+#
+# Examples:
+#    notify_slack 0 "Deployed to Github failed!"
+#    notify_slack "true" "Success!" "https://github.com/"
+#
+function notify_slack() {
+	if [ -z "${SLACK_WEBHOOK_URL}" ]; then
+		echo "env var SLACK_WEBHOOK_URL is unset. Not sending notification" > /dev/stderr
+		return 0
+	fi
+
+	success=${1:-}
+	msg=${3:-}
+	link=${2:-}
+
+	color="green"
+	[[ "$success" =~ ^(false|0|no)$ ]] && color="red"
+
+	payload=$(cat <<-EOF
+	{
+	  "attachments": [
+	    {
+	      "fallback": "${msg}",
+	      "color": "${color}",
+	      "title": "${msg}",
+	      "title_link": "${link}",
+	      "fields": [
+		{
+		  "title": "User",
+		  "value": "${USER}",
+		  "short": true
+		},
+		{
+		  "title": "Source",
+		  "value": "$(hostname -s)",
+		  "short": true
+		}
+	      ]
+	    }
+	  ]
+	}
+	EOF
+	)
+
+	curl -sS -X POST \
+		--fail-early \
+		--fail \
+		--data "$payload" \
+		"${SLACK_WEBHOOK_URL}" > /dev/null
+
+	# always pass to prevent pipefailures
+	return 0
+}
+
 
 main "$@"
