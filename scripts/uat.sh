@@ -209,7 +209,9 @@ function command_versions() {
 
 function command_create_status() {
 	list \
-		| jq -r '.droplets[] | "\(.id) [\(.name)] \(.status)"'
+		| jq -r '.droplets[] | "\(.id) [\(.name)] \(.status)"' \
+		| GREP_COLOR='1;31' grep -P --color=yes 'new|$' \
+		| GREP_COLOR='1;32' grep -P --color=yes 'active|$'
 }
 
 

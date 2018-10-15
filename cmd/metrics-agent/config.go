@@ -55,7 +55,6 @@ var (
 )
 
 const (
-	appName            = "metrics-agent"
 	defaultMetadataURL = "http://169.254.169.254/metadata"
 	defaultAuthURL     = "https://sonar.digitalocean.com"
 	defaultSonarURL    = ""

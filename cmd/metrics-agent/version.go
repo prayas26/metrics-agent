@@ -50,11 +50,11 @@ For a copy, see <https://www.apache.org/licenses/LICENSE-2.0.html>.
 
 var buildInfo = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Namespace: appName,
+		Namespace: "metrics_agent",
 		Name:      "build_info",
 		Help: fmt.Sprintf(
 			"A metric with a constant '1' value labeled by version from which %s was built.",
-			appName,
+			"metrics_agent",
 		),
 	},
 	[]string{"version", "revision"},
@@ -66,7 +66,7 @@ func init() {
 		Short('v').
 		PreAction(func(c *kingpin.ParseContext) error {
 			versionTmpl.Execute(os.Stdout, map[string]string{
-				"name":      appName,
+				"name":      "metrics-agent",
 				"version":   version,
 				"branch":    branch,
 				"revision":  revision,
