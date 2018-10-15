@@ -35,7 +35,7 @@ var (
 )
 
 var versionTmpl = template.Must(template.New("version").Parse(`
-{{ .name }} (DigitalOcean Node Collector)  {{ .version }}
+{{ .name }} (DigitalOcean Metrics Agent)  {{ .version }}
 Branch:      {{.branch}}
 Revision:    {{.revision}}
 Build Date:  {{.buildDate}}
