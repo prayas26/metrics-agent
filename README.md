@@ -1,8 +1,8 @@
-# Node Collector
+# DigitalOcean Metrics Agent
 
 **WIP Notice**
 
-DigitalOcean Node Collector is a work in progress
+DigitalOcean Metrics Agent is a work in progress
 
 [![Build
 Status](https://travis-ci.org/digitalocean/metrics-agent.svg?branch=master)](https://travis-ci.org/digitalocean/metrics-agent)
