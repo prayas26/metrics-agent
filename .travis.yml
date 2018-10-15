@@ -39,6 +39,6 @@ deploy:
     skip_cleanup: true
     script: bash scripts/deploy.sh all
     on:
-      repo: digitalocean/node_collector
+      repo: digitalocean/metrics-agent
       branch: master
       tags: true
