@@ -53,7 +53,7 @@ func (n *NodeCollector) Collectors() map[string]collector.Collector {
 
 // Name returns the name of this collector
 func (n *NodeCollector) Name() string {
-	return "node_collector"
+	return "metrics-agent"
 }
 
 // Collect collects metrics using prometheus/node_exporter

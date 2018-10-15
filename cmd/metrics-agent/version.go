@@ -40,7 +40,7 @@ Branch:      {{.branch}}
 Revision:    {{.revision}}
 Build Date:  {{.buildDate}}
 Go Version:  {{.goVersion}}
-Website:     https://github.com/digitalocean/node_collector
+Website:     https://github.com/digitalocean/metrics-agent
 
 Copyright (c) {{.year}} DigitalOcean, Inc. All rights reserved.
 

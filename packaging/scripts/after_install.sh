@@ -9,11 +9,11 @@
 
 set -ue
 
-INSTALL_DIR=/opt/digitalocean/node_collector
-SVC_NAME=node-collector
+INSTALL_DIR=/opt/digitalocean/metrics-agent
+SVC_NAME=metrics-agent
 NOBODY_USER=nobody
 NOBODY_GROUP=nogroup
-CRON=/etc/cron.daily/node-collector
+CRON=/etc/cron.daily/metrics-agent
 
 # fedora uses nobody instead of nogroup
 getent group nobody 2> /dev/null \
@@ -44,7 +44,7 @@ update_selinux() {
 		return
 	fi
 
-	echo "setting nis_enabled to 1 to allow node-collector to execute"
+	echo "setting nis_enabled to 1 to allow metrics-agent to execute"
 	setsebool -P nis_enabled 1 || echo "Failed" > /dev/stderr
 }
 
@@ -66,14 +66,14 @@ init_systemd() {
 	SVC=/etc/systemd/system/${SVC_NAME}.service
 	cat <<-EOF > "$SVC"
 	[Unit]
-	Description=DigitalOcean node_collector agent
+	Description=DigitalOcean metrics-agent agent
 	After=network-online.target
 	Wants=network-online.target
 
 	[Service]
 	User=${NOBODY_USER}
 	Group=${NOBODY_GROUP}
-	ExecStart=/usr/local/bin/node_collector
+	ExecStart=/usr/local/bin/metrics-agent
 	Restart=always
 
 	OOMScoreAdjust=-900
@@ -95,7 +95,7 @@ init_systemd() {
 
 init_upstart() {
 	cat <<-EOF > /etc/init/${SVC_NAME}.conf
-	# node_collector - An agent that collects system metrics.
+	# metrics-agent - An agent that collects system metrics.
 	#
 	# An agent that collects system metrics and transmits them to DigitalOcean.
 	description "The DigitalOcean Monitoring Agent"
@@ -109,7 +109,7 @@ init_upstart() {
 	respawn
 
 	script
-	  exec su -s /bin/sh -c 'exec "\$0" "\$@"' ${NOBODY_USER} -- /usr/local/bin/node_collector --syslog
+	  exec su -s /bin/sh -c 'exec "\$0" "\$@"' ${NOBODY_USER} -- /usr/local/bin/metrics-agent --syslog
 	end script
 	EOF
 	initctl reload-configuration

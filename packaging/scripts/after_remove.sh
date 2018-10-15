@@ -9,8 +9,8 @@
 
 set -ue
 
-SVC_NAME=node-collector
-CRON=/etc/cron.daily/node-collector
+SVC_NAME=metrics-agent
+CRON=/etc/cron.daily/metrics-agent
 
 main() {
 	if command -v systemctl >/dev/null 2>&1; then

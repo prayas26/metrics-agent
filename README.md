@@ -5,9 +5,9 @@
 DigitalOcean Node Collector is a work in progress
 
 [![Build
-Status](https://travis-ci.org/digitalocean/node_collector.svg?branch=master)](https://travis-ci.org/digitalocean/node_collector)
-[![Go Report Card](https://goreportcard.com/badge/github.com/digitalocean/node_collector)](https://goreportcard.com/report/github.com/digitalocean/node_collector)
-[![Coverage Status](https://coveralls.io/repos/github/digitalocean/node_collector/badge.svg?branch=feat%2Fadd-coveralls-report)](https://coveralls.io/github/digitalocean/node_collector?branch=feat%2Fadd-coveralls-report)
+Status](https://travis-ci.org/digitalocean/metrics-agent.svg?branch=master)](https://travis-ci.org/digitalocean/metrics-agent)
+[![Go Report Card](https://goreportcard.com/badge/github.com/digitalocean/metrics-agent)](https://goreportcard.com/report/github.com/digitalocean/metrics-agent)
+[![Coverage Status](https://coveralls.io/repos/github/digitalocean/metrics-agent/badge.svg?branch=feat%2Fadd-coveralls-report)](https://coveralls.io/github/digitalocean/metrics-agent?branch=feat%2Fadd-coveralls-report)
 
 ## Development
 
@@ -19,8 +19,8 @@ Status](https://travis-ci.org/digitalocean/node_collector.svg?branch=master)](ht
 - [Go Meta Linter](https://github.com/alecthomas/gometalinter#installing)
 
 ```
-git clone git@github.com:digitalocean/node_collector.git \
-        $GOPATH/src/github.com/digitalocean/node_collector
+git clone git@github.com:digitalocean/metrics-agent.git \
+        $GOPATH/src/github.com/digitalocean/metrics-agent
 cd !$
 
 # build the project

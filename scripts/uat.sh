@@ -2,7 +2,7 @@
 #
 # Author: Brett Jones <blockloop>
 # Purpose: Provide simple UAT tasks for creating/updating/deleting droplets
-# configured with node-collector. To add another method to this script simply
+# configured with metrics-agent. To add another method to this script simply
 # create a new function called 'function command_<task>'. It will automatically
 # get picked up as a new command.
 
@@ -11,7 +11,7 @@ set -ue
 # team context in the URL of the browser
 CONTEXT=14661f
 OS=$(uname | tr '[:upper:]' '[:lower:]')
-TAG=node-collector-test-${USER}
+TAG=metrics-agent-test-${USER}
 SUPPORTED_IMAGES="centos-6-x32 centos-6-x64 centos-7-x64 debian-8-x32 debian-8-x64 \
 	debian-9-x64 fedora-27-x64 fedora-28-x64 ubuntu-14-04-x32 ubuntu-14-04-x64 \
 	ubuntu-16-04-x32 ubuntu-16-04-x64 ubuntu-18-04-x64"
@@ -27,12 +27,12 @@ SNYDER_SSH_FINGERPRINT="47:31:9b:8b:87:a7:2d:26:79:17:87:83:53:65:d4:b4"
 # shellcheck disable=SC1117
 USER_DATA_DEB="#!/usr/bin/env bash \n\
 [ -z \`command -v curl\` ] && apt-get -qq update && apt-get install -q -y curl \n\
-curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/node-collector-install.sh | sudo bash"
+curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/metrics-agent-install.sh | sudo bash"
 
 # shellcheck disable=SC1117
 USER_DATA_RPM="#!/usr/bin/env bash \n\
 [ -z \`command -v curl\` ] && yum -y install curl \n\
-curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/node-collector-install.sh | sudo bash"
+curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/metrics-agent-install.sh | sudo bash"
 
 
 function main() {
@@ -112,7 +112,7 @@ function command_graphs() {
 	fi
 }
 
-# create a droplet for every SUPPORTED_IMAGE and automatically install node-collector
+# create a droplet for every SUPPORTED_IMAGE and automatically install metrics-agent
 # using either apt or yum
 function command_create() {
 	for i in $SUPPORTED_IMAGES; do
@@ -125,20 +125,20 @@ function command_create() {
 	fi
 }
 
-# ssh to all droplets and run <init system> status node-collector to verify
+# ssh to all droplets and run <init system> status metrics-agent to verify
 # that it is indeed running
 function command_status() {
 	command_exec "if command -v systemctl 2&>/dev/null; then \
-		systemctl is-active node-collector; \
+		systemctl is-active metrics-agent; \
 	else \
-		initctl status node-collector; \
+		initctl status metrics-agent; \
 	fi"
 }
 
 # ssh to all droplets and run yum/apt update to upgrade to the latest published
-# version of node-collector
+# version of metrics-agent
 function command_update() {
-	command_exec "/bin/bash /opt/digitalocean/node_collector/scripts/update.sh"
+	command_exec "/bin/bash /opt/digitalocean/metrics-agent/scripts/update.sh"
 }
 
 # ssh to all droplets and execute a command
@@ -169,7 +169,7 @@ function command_list_ips_rpm() {
 
 # execute a command against a list of IP addresses
 # Usage:   exec_ips <ips> <command>
-# Example: exec_ips "$(list_ips_rpm)" "yum update node collector"
+# Example: exec_ips "$(list_ips_rpm)" "yum update metrics agent"
 function exec_ips() {
 	{ [ -z "${1:-}" ] || [ -z "${2:-}" ]; } \
 		&& abort "Usage: ${FUNCNAME[0]} <ips> <command>"
@@ -203,8 +203,8 @@ function command_ssh() {
 
 # show version information about remote installed versions
 function command_versions() {
-	exec_deb 'apt-cache policy node-collector'
-	exec_rpm 'yum --cacheonly list node-collector'
+	exec_deb 'apt-cache policy metrics-agent'
+	exec_rpm 'yum --cacheonly list metrics-agent'
 }
 
 function command_create_status() {

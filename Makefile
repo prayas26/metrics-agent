@@ -73,7 +73,7 @@ $(binary):
 	     ./cmd/$(project)
 
 package: release
-release: $(out)/scripts/node-collector-install.sh
+release: $(out)/scripts/metrics-agent-install.sh
 	$(print)
 	@GOOS=linux GOARCH=386 $(MAKE) build deb rpm tar
 	@GOOS=linux GOARCH=amd64 $(MAKE) build deb rpm tar
@@ -107,7 +107,7 @@ clean:
 ci: clean lint shellcheck test
 .PHONY: ci
 
-$(out)/scripts/node-collector-install.sh: ./scripts/install.sh
+$(out)/scripts/metrics-agent-install.sh: ./scripts/install.sh
 	$(print)
 	$(mkdir)
 	$(cp)
@@ -133,14 +133,14 @@ $(base_package): $(binary) | $(target/VERSION)
 		--description "DigitalOcean stats collector" \
 		--license apache-2.0 \
 		--vendor DigitalOcean \
-		--url https://github.com/digitalocean/node_collector \
+		--url https://github.com/digitalocean/metrics-agent \
 		--log info \
 		--conflicts do-agent \
 		--replaces do-agent \
 		--after-install packaging/scripts/after_install.sh \
 		--after-remove packaging/scripts/after_remove.sh \
-		$<=/usr/local/bin/node_collector \
-		scripts/update.sh=/opt/digitalocean/node_collector/scripts/update.sh
+		$<=/usr/local/bin/metrics-agent \
+		scripts/update.sh=/opt/digitalocean/metrics-agent/scripts/update.sh
 .INTERMEDIATE: $(base_package)
 
 deb: $(deb_package)

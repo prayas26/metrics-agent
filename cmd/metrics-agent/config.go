@@ -23,12 +23,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/digitalocean/node_collector/internal/log"
-	"github.com/digitalocean/node_collector/pkg/clients/tsclient"
-	"github.com/digitalocean/node_collector/pkg/collector"
-	"github.com/digitalocean/node_collector/pkg/decorate"
-	"github.com/digitalocean/node_collector/pkg/decorate/compat"
-	"github.com/digitalocean/node_collector/pkg/writer"
+	"github.com/digitalocean/metrics-agent/internal/log"
+	"github.com/digitalocean/metrics-agent/pkg/clients/tsclient"
+	"github.com/digitalocean/metrics-agent/pkg/collector"
+	"github.com/digitalocean/metrics-agent/pkg/decorate"
+	"github.com/digitalocean/metrics-agent/pkg/decorate/compat"
+	"github.com/digitalocean/metrics-agent/pkg/writer"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -55,7 +55,7 @@ var (
 )
 
 const (
-	appName            = "node_collector"
+	appName            = "metrics-agent"
 	defaultMetadataURL = "http://169.254.169.254/metadata"
 	defaultAuthURL     = "https://sonar.digitalocean.com"
 	defaultSonarURL    = ""
@@ -125,7 +125,7 @@ func (m *WrappedTSClient) Name() string { return "tsclient" }
 
 func newTimeseriesClient(ctx context.Context) (*WrappedTSClient, error) {
 	clientOptions := []tsclient.ClientOptFn{
-		tsclient.WithUserAgent(fmt.Sprintf("node-collector-%s", revision)),
+		tsclient.WithUserAgent(fmt.Sprintf("metrics-agent-%s", revision)),
 		tsclient.WithRadarEndpoint(config.authURL.String()),
 		tsclient.WithMetadataEndpoint(config.metadataURL.String()),
 	}
@@ -153,11 +153,11 @@ func initCollectors() []prometheus.Collector {
 	// buildInfo provides build information for tracking metrics internally
 	cols := []prometheus.Collector{buildInfo}
 
-	// create the default node collector to collect metrics about
+	// create the default metrics agent to collect metrics about
 	// this device
 	node, err := collector.NewNodeCollector()
 	if err != nil {
-		log.Fatal("failed to create node collector: %+v", err)
+		log.Fatal("failed to create metrics agent: %+v", err)
 	}
 	log.Info("%d node_exporter collectors were registered", len(node.Collectors()))
 

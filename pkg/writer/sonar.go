@@ -16,7 +16,7 @@
 package writer
 
 import (
-	"github.com/digitalocean/node_collector/pkg/clients/tsclient"
+	"github.com/digitalocean/metrics-agent/pkg/clients/tsclient"
 	dto "github.com/prometheus/client_model/go"
 )
 

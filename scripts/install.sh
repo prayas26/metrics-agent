@@ -2,9 +2,9 @@
 
 set -ueo pipefail
 
-# REPO="node-collector"
+# REPO="metrics-agent"
 # TODO use metadata api to determine beta
-REPO="node-collector-beta"
+REPO="metrics-agent-beta"
 dist=""
 
 function main() {
@@ -17,7 +17,7 @@ function main() {
 	curl -s "https://packagecloud.io/install/repositories/digitalocean-insights/${REPO}/script.$kind.sh" \
 		| sudo bash
 
-	install_package node-collector
+	install_package metrics-agent
 }
 
 function install_package() {

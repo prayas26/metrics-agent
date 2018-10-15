@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/digitalocean/node_collector/pkg/clients/tsclient/structuredstream"
+	"github.com/digitalocean/metrics-agent/pkg/clients/tsclient/structuredstream"
 
 	"github.com/golang/snappy"
 )

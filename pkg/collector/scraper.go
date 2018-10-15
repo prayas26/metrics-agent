@@ -25,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/digitalocean/node_collector/internal/log"
-	"github.com/digitalocean/node_collector/pkg/clients"
+	"github.com/digitalocean/metrics-agent/internal/log"
+	"github.com/digitalocean/metrics-agent/pkg/clients"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"

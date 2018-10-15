@@ -126,8 +126,8 @@ function check_version() {
 function deploy_spaces() {
 	aws s3 \
 		--endpoint-url https://nyc3.digitaloceanspaces.com \
-		cp ./target/scripts/node-collector-install.sh \
-		s3://insights/node-collector-install.sh
+		cp ./target/scripts/metrics-agent-install.sh \
+		s3://insights/metrics-agent-install.sh
 }
 
 
@@ -159,25 +159,25 @@ function deploy_packagecloud() {
 	rpm_files=$(target_files | grep '\.rpm$')
 	for uv in $UBUNTU_VERSIONS; do
 		package_cloud push \
-			"digitalocean-insights/node-collector-beta/ubuntu/$uv" \
+			"digitalocean-insights/metrics-agent-beta/ubuntu/$uv" \
 			"$deb_files" &
 	done
 
 	for dv in $DEBIAN_VERSIONS; do
 		package_cloud push \
-			"digitalocean-insights/node-collector-beta/debian/$dv" \
+			"digitalocean-insights/metrics-agent-beta/debian/$dv" \
 			"$deb_files" &
 	done
 
 	for rv in $RHEL_VERSIONS; do
 		package_cloud push \
-			"digitalocean-insights/node-collector-beta/el/$rv" \
+			"digitalocean-insights/metrics-agent-beta/el/$rv" \
 			"$rpm_files" &
 	done
 
 	for fv in $FEDORA_VERSIONS; do
 		package_cloud push \
-			"digitalocean-insights/node-collector-beta/fedora/$fv" \
+			"digitalocean-insights/metrics-agent-beta/fedora/$fv" \
 			"$rpm_files" &
 	done
 
@@ -206,10 +206,10 @@ function promote_packagecloud() {
 		|| abort "Version ${VERSION} was not found on Packagecloud.io"
 
 	echo "Promoting PackageCloud ${VERSION}"
-	deb64="node-collector_${VERSION/v}_amd64.deb"
-	deb32="node-collector_${VERSION/v}_i386.deb"
-	rpm64="node-collector-${VERSION/v}-1.x86_64.rpm"
-	rpm32="node-collector-${VERSION/v}-1.i386.rpm"
+	deb64="metrics-agent_${VERSION/v}_amd64.deb"
+	deb32="metrics-agent_${VERSION/v}_i386.deb"
+	rpm64="metrics-agent-${VERSION/v}-1.x86_64.rpm"
+	rpm32="metrics-agent-${VERSION/v}-1.i386.rpm"
 
 	for uv in $UBUNTU_VERSIONS; do
 		promote "ubuntu" "$uv" "$deb64" &
@@ -249,7 +249,7 @@ function package_cloud() {
 function check_packagecloud_version() {
 	v=${VERSION/v}
 
-	url=https://packagecloud.io/digitalocean-insights/node-collector-beta/packages/ubuntu/zesty/node-collector_${v}_amd64.deb
+	url=https://packagecloud.io/digitalocean-insights/metrics-agent-beta/packages/ubuntu/zesty/metrics-agent_${v}_amd64.deb
 	echo "Checking for version $v"
 	curl --fail-early \
 		--fail \
@@ -267,9 +267,9 @@ function promote() {
 	fi
 
 	package_cloud promote \
-		"digitalocean-insights/node-collector-beta/$distro/$distro_release" \
+		"digitalocean-insights/metrics-agent-beta/$distro/$distro_release" \
 		"$target" \
-		"digitalocean-insights/node-collector"
+		"digitalocean-insights/metrics-agent"
 }
 
 # interact with the awscli via docker
@@ -288,15 +288,15 @@ function aws() {
 # get the asset upload URL for VERSION
 function github_asset_upload_url() {
 	github_curl \
-		"https://api.github.com/repos/digitalocean/node_collector/releases/tags/$VERSION" \
-		| jq -r '. | "https://uploads.github.com/repos/digitalocean/node_collector/releases/\(.id)/assets"'
+		"https://api.github.com/repos/digitalocean/metrics-agent/releases/tags/$VERSION" \
+		| jq -r '. | "https://uploads.github.com/repos/digitalocean/metrics-agent/releases/\(.id)/assets"'
 }
 
 # get the base release url for VERSION
 function github_release_url() {
 	github_curl \
-		"https://api.github.com/repos/digitalocean/node_collector/releases/tags/$VERSION" \
-		| jq -r '. | "https://api.github.com/repos/digitalocean/node_collector/releases/\(.id)"'
+		"https://api.github.com/repos/digitalocean/metrics-agent/releases/tags/$VERSION" \
+		| jq -r '. | "https://api.github.com/repos/digitalocean/metrics-agent/releases/\(.id)"'
 }
 
 
@@ -335,7 +335,7 @@ function create_github_release() {
 		-X POST \
 		-H 'Content-Type: application/json' \
 		-d "@$body" \
-		https://api.github.com/repos/digitalocean/node_collector/releases
+		https://api.github.com/repos/digitalocean/metrics-agent/releases
 }
 
 # list the artifacts within the target/ directory
@@ -345,7 +345,7 @@ function target_files() {
 		abort "No packages for $VERSION were found in target/.  Did you forget to run make?"
 	fi
 
-	ls target/node_collector_linux_* "$packages"
+	ls target/metrics-agent_linux_* "$packages"
 }
 
 # call CURL with github authentication

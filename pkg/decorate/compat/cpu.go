@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/digitalocean/node_collector/internal/log"
+	"github.com/digitalocean/metrics-agent/internal/log"
 	dto "github.com/prometheus/client_model/go"
 )
 

@@ -20,8 +20,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/digitalocean/node_collector/internal/log"
-	"github.com/digitalocean/node_collector/pkg/decorate"
+	"github.com/digitalocean/metrics-agent/internal/log"
+	"github.com/digitalocean/metrics-agent/pkg/decorate"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
