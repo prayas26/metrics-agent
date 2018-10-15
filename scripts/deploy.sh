@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -ueo pipefail
-set -x
+# set -x
 
 UBUNTU_VERSIONS="trusty utopic vivid wily xenial yakkety zesty artful bionic"
 DEBIAN_VERSIONS="wheezy jessie stretch buster"
@@ -307,45 +307,27 @@ function create_github_release() {
 		return 0
 	fi
 
-	tty -s || abort "Github release creation requires an interactive shell"
-
-	confirm "The Github release does not exist. Would you like to create it?" \
-		|| return 1
-
-	commit=$(ask "For which branch/commit? (ctrl-c to cancel)")
-	[ -z "$commit" ] && return 1
-
-	echo "Creating Github release..."
-	body=$(mktemp --suffix=.json)
-	cat <<-EOF | tee "$body"
-
-	{
-	  "tag_name": "$VERSION",
-	  "target_commitish": "$commit",
-	  "name": "$VERSION",
-	  "draft": false,
-	  "prerelease": true
-	}
-
-	EOF
-	confirm "Proceed?" || return 1
+	echo "Creating Github release $VERSION"
+	data="{ \"tag_name\": \"$VERSION\", \"prerelease\": true }"
+	echo "$data"
 
 	github_curl \
 		-o /dev/null \
 		-X POST \
 		-H 'Content-Type: application/json' \
-		-d "@$body" \
+		-d "$data" \
 		https://api.github.com/repos/digitalocean/metrics-agent/releases
 }
 
 # list the artifacts within the target/ directory
 function target_files() {
 	v=${VERSION/v}
-	if ! packages=$(ls "target/pkg/*$v*" 2>/dev/null); then
+	if ! packages=$(find target/pkg -type f -iname "*$v*"); then
 		abort "No packages for $VERSION were found in target/.  Did you forget to run make?"
 	fi
 
-	ls target/metrics-agent_linux_* "$packages"
+	ls target/metrics-agent_linux_*
+	echo "$packages"
 }
 
 # call CURL with github authentication
