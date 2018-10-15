@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -ueo pipefail
-# set -x
+set -x
 
 UBUNTU_VERSIONS="trusty utopic vivid wily xenial yakkety zesty artful bionic"
 DEBIAN_VERSIONS="wheezy jessie stretch buster"
@@ -275,7 +275,7 @@ function promote() {
 # interact with the awscli via docker
 function aws() {
 	docker run \
-		--rm -t "$(tty &>/dev/null && echo \"-i\")" \
+		--rm -t "$(tty &>/dev/null && echo '-i')" \
 		-e "AWS_ACCESS_KEY_ID=${SPACES_ACCESS_KEY_ID}" \
 		-e "AWS_SECRET_ACCESS_KEY=${SPACES_SECRET_ACCESS_KEY}" \
 		-e "AWS_DEFAULT_REGION=nyc3" \

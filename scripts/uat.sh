@@ -11,7 +11,7 @@ set -ue
 # team context in the URL of the browser
 CONTEXT=14661f
 OS=$(uname | tr '[:upper:]' '[:lower:]')
-TAG=metrics-agent-test-${USER}
+TAG=metrics-agent-uat-${USER}
 SUPPORTED_IMAGES="centos-6-x32 centos-6-x64 centos-7-x64 debian-8-x32 debian-8-x64 \
 	debian-9-x64 fedora-27-x64 fedora-28-x64 ubuntu-14-04-x32 ubuntu-14-04-x64 \
 	ubuntu-16-04-x32 ubuntu-16-04-x64 ubuntu-18-04-x64"

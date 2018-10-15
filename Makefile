@@ -73,7 +73,7 @@ $(binary):
 	     ./cmd/$(project)
 
 package: release
-release: $(out)/scripts/metrics-agent-install.sh
+release: target/VERSION $(out)/scripts/metrics-agent-install.sh
 	$(print)
 	@GOOS=linux GOARCH=386 $(MAKE) build deb rpm tar
 	@GOOS=linux GOARCH=amd64 $(MAKE) build deb rpm tar
@@ -118,7 +118,7 @@ target/VERSION:
 	@echo $(git_tag) > $@
 
 # used to create a base package with common functionality
-$(base_package): $(binary) | $(target/VERSION)
+$(base_package): $(binary)
 	$(print)
 	$(mkdir)
 	@$(fpm) --output-type deb \
