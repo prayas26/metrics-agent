@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Author: Brett Jones <blockloop>
 # Purpose: Provide simple UAT tasks for creating/updating/deleting droplets
@@ -25,12 +25,12 @@ SNYDER_SSH_FINGERPRINT="47:31:9b:8b:87:a7:2d:26:79:17:87:83:53:65:d4:b4"
 # behavior because it will be added to the JSON request body and
 # executed/expanded on the server
 # shellcheck disable=SC1117
-USER_DATA_DEB="#!/bin/bash \n\
+USER_DATA_DEB="#!/usr/bin/env bash \n\
 [ -z \`command -v curl\` ] && apt-get -qq update && apt-get install -q -y curl \n\
 curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/node-collector-install.sh | sudo bash"
 
 # shellcheck disable=SC1117
-USER_DATA_RPM="#!/bin/bash \n\
+USER_DATA_RPM="#!/usr/bin/env bash \n\
 [ -z \`command -v curl\` ] && yum -y install curl \n\
 curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/node-collector-install.sh | sudo bash"
 

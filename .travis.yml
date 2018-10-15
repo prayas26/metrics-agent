@@ -34,37 +34,10 @@ script:
   - goveralls -coverprofile=target/.coverprofile -service=travis-ci -repotoken $COVERALLS_API_TOKEN
   - make release
 
-# secure variables are generated and encrypted by running CLI `travis encrypt`
 deploy:
-  - provider: releases
-    skip_cleanup: true
-    api_key:
-      secure: qzSV3A5jXXl8UDhK7yL3ff06NwkgPfczn7GrPhU3n//pvLjhRCozYkgznmUpQh8Ef2ZpHqwYhdPAYP1np4LT5RMQtJFeQUxmlZ/m2wWQwkHc7Oct19UlgZ28/kwwyqPAE9ErL179tyFTe3pfn42UFXL30ciD7xGCOlFc0YH+4yWAzqcpicGfR/885eAwzitckBXioC/59MwMCBwgQuS9aRknMIT4tjgjfpEu6RZyM0/ycODkHxezjcW66R5qu5ezE8WVTjIPHg9/qChLSSYzL2Z86oqy7ezyOuhsbeKb4i5wXpHc7wyvhpwmgIb9dFiiwrGPcEMJC8g8BUqA5XRtBCq6Sedlmn48L1c6UMVdAqX/DhtRzPjFnb7LqGQGmGA5bXLJXj8t5yoMDq9ii+sA3XsCZfT3QLafkuVpMvjgeMFL6gdfaGDHD49xYt/s1lW2q7YSq/Fv1aLfQmR86umetzZQ4Kya8DwCOjO7xWUUGp68yvFFQei70/Q7RVXAPPa+FVxiguxxtyqHRAa/P4uVwaqLkfcPaTE1Jv+j8Vlz2q66gyGOE8/8vALz18i3/Y2GteSjMTU6VKvugVt4H4JzoUC4YdmDat862L0uWUOB1uzVd+Hj5JZ5gGB1p3tneo9icYEVeqaAuffHeHPMujbXbjR+PQ1LqwNxbk/Wjlw1gVw=
-    file_glob: true
-    file: target/**/node*
-    on:
-      repo: digitalocean/node_collector
-      branch: master
-      tags: true
   - provider: script
     skip_cleanup: true
-    script: bash packaging/scripts/deploy-packagecloud.sh
-    on:
-      repo: digitalocean/node_collector
-      branch: master
-      tags: true
-  - provider: s3
-    file: target/scripts/node-collector-install.sh
-    endpoint: https://nyc3.digitaloceanspaces.com
-    bucket: insights
-    acl: public_read
-    skip_cleanup: true
-    detect_encoding: true
-    local_dir: target/scripts
-    access_key_id:
-      secure: "JBCr2eyAHwdSQPAygmd3+WuioVX2io3ymvokYRW1vap8d8yRiSPYJSyHz/t7x8svpQ2eYUkicUJFQl+gpB4flpVfC1N7ZQdjx2G7qs6jBvHCvD10vdBpQid4+ztNrU34TVxDeas8Zsp43dnkeUDz7esAcPU7FhxX1hD4AblG9j6N28LR30dfZNimwHtFriFC9Wd5tV0CRuJJ7/98Vc239IJBJ6l1Uh8mPZ7rkQmaf3FOiXHuyb9CcfywFO5Z7OLxCyQTvUapnOAAGwMpc3EOy1zUKZTJtllmJZfMNAOuumCdlgz9gr8+dYAl2bTSKSjJM7KUn3FuOF3+++67zK676v1L4DxW5loa2CGAvKHIDFjNZvnSmDfwpcbj1kZoXORXjFtqMfuspDun5KkvWCK+6QmkKlp/cxK+7W/eAtslpbJIDQdoWtEgEU1CQC4Yg3PmPcaNvNPR8+AyY0thz04CGJkzJOJ6cgifHE7/uJ0xQvgTiM9JcUhuNRN/rkQK6hyrwl5xlnY1DwSdvD6An9rxWcGawK30ptZQf5HGeNBP6J71mq3zs2vYiOWgYcYJLACP7vL2NwPtjmz9r85tDGrerCHRjxLJ6ZRAweYGs4DWb3yx8zHvqy6kiyk82SWjXxs72srF8x3vZUvya277iEHoMlSzG5AnI8CWvh9r5r1ZTDE="
-    secret_access_key:
-      secure: "TXVsqHjyMFlsDWVgijkfleuaC/nR5g27GpDXjMuZjBca8F+deWE1QljIqAMpEXbt6YGLWU6L7TJO4agFbR1xpY3BQdEuogwLUXeC6SFFLgCt6Z9f5OuxfZFMv9uBj7mAbSS7Mib+kgZ+Fp91yIl0zTlspVxGZzkvxQ/SqxA1d40JivGVFX58OSf/wlF+nREvlu/jgRKZ6H8M3V8htQZVnhDX4bMo5gzGw8RJLxgW3t9RrmaGeue2Ew5mjCQ+efYReNznQcQOSpoBvAtEpvPiUUNTTfYGykoSXgE1rUwYy88engniGgfSz5BVPEVCYZw6nXa+OK6pTXUlSb3Rd3dTDGWvCat0AqZGDixz45C4UgtoLRdFMfMJ1uK6nGcOfx4XrbZlODw8qbQNXrRYhRMeH3z+UBPeT3gJUYZstUlDZ1H7qCJj6a5+kJErRcRLmJCWR1BJ8kZoB3bIvwM5vAY3OztsWgvuJGy7P/mLDkaZm2J4Bn14XpUlAYc4lW/6eCFulsPZku6qWfRwaCBGlCIDDLUfQ78t/NCgCP5xQ18Yu7SYrSQW7CTKVXvCkapi+niwFTIudt1aOhQfbGJy9y0vhdzvvbPvkA66ejURMp1QaDy/9CaMDW1OKV7EevWSwahkFN8poWs8O4yyGkAGl8E+e988ZWE0tCifetv2+IxUtsc="
+    script: bash scripts/deploy.sh all
     on:
       repo: digitalocean/node_collector
       branch: master

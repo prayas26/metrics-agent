@@ -56,7 +56,7 @@ cover_profile      := $(out)/.coverprofile
 base_package := $(package_dir)/$(pkg_project)_$(version)_$(PKG_ARCH).BASE.deb
 deb_package  := $(package_dir)/$(pkg_project)_$(version)_$(PKG_ARCH).deb
 rpm_package  := $(package_dir)/$(pkg_project)-$(version)-1.$(PKG_ARCH).rpm
-tar_package  := $(subst .deb,.tar.gz,$(deb_package))
+tar_package  := $(package_dir)/$(pkg_project)-$(version).tar.gz
 
 #############
 ## targets ##
@@ -112,8 +112,13 @@ $(out)/scripts/node-collector-install.sh: ./scripts/install.sh
 	$(mkdir)
 	$(cp)
 
+target/VERSION:
+	$(print)
+	$(mkdir)
+	@echo $(git_tag) > $@
+
 # used to create a base package with common functionality
-$(base_package): $(binary)
+$(base_package): $(binary) | $(target/VERSION)
 	$(print)
 	$(mkdir)
 	@$(fpm) --output-type deb \
