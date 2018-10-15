@@ -251,8 +251,7 @@ function check_packagecloud_version() {
 
 	url=https://packagecloud.io/digitalocean-insights/metrics-agent-beta/packages/ubuntu/zesty/metrics-agent_${v}_amd64.deb
 	echo "Checking for version $v"
-	curl --fail-early \
-		--fail \
+	curl --fail \
 		-SsLI \
 		"${url}" \
 		| grep 'HTTP/1'
@@ -335,7 +334,6 @@ function github_curl() {
 	# if user and token are empty then bash will exit because of unbound vars
 	curl -SsL \
 		--fail \
-		--fail-early \
 		-u "${GITHUB_AUTH_USER}:${GITHUB_AUTH_TOKEN}" \
 		"$@"
 }
@@ -411,7 +409,6 @@ function notify_slack() {
 	)
 
 	curl -sS -X POST \
-		--fail-early \
 		--fail \
 		--data "$payload" \
 		"${SLACK_WEBHOOK_URL}" > /dev/null

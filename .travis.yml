@@ -34,6 +34,9 @@ script:
   - goveralls -coverprofile=target/.coverprofile -service=travis-ci -repotoken $COVERALLS_API_TOKEN
   - make release
 
+before_deploy:
+  - curl -V
+
 deploy:
   - provider: script
     skip_cleanup: true
