@@ -43,7 +43,7 @@ function main() {
 	# disable requirement to quote 'fn' which would break this code
 	# shellcheck disable=SC2086
 	if [ "$(type -t ${fn})" = function ]; then
-		${fn} "$*"
+		${fn} "$@"
 	else
 		usage
 		exit 1
@@ -212,6 +212,20 @@ function command_create_status() {
 		| jq -r '.droplets[] | "\(.id) [\(.name)] \(.status)"' \
 		| GREP_COLOR='1;31' grep -P --color=yes 'new|$' \
 		| GREP_COLOR='1;32' grep -P --color=yes 'active|$'
+}
+
+# scp a file to every host
+function command_scp() {
+	src=${1:-}; dest=${2:-}
+	if [ -z "$src" ] || [ -z "$dest" ]; then
+		abort "Usage: $0 scp <src> <dest>"
+	fi
+
+	for ip in $(list_ips); do
+		# shellcheck disable=SC2029
+		scp "$src" root@"${ip}":"$dest" &
+	done
+	wait
 }
 
 
