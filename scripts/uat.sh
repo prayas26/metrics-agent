@@ -203,7 +203,7 @@ function command_ssh() {
 
 # show version information about remote installed versions
 function command_versions() {
-	exec_deb 'apt-cache policy metrics-agent'
+	exec_deb 'apt-cache policy metrics-agent | head -n3'
 	exec_rpm 'yum --cacheonly list metrics-agent'
 }
 
