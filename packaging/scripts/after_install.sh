@@ -58,6 +58,8 @@ patch_updates() {
 	/bin/bash ${script}
 	EOF
 
+	chmod a+x "${CRON}"
+
 	echo "cron installed"
 }
 
