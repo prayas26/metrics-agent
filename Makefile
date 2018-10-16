@@ -135,8 +135,6 @@ $(base_package): $(binary)
 		--vendor DigitalOcean \
 		--url https://github.com/digitalocean/metrics-agent \
 		--log info \
-		--conflicts do-agent \
-		--replaces do-agent \
 		--after-install packaging/scripts/after_install.sh \
 		--after-remove packaging/scripts/after_remove.sh \
 		$<=/usr/local/bin/metrics-agent \
@@ -151,6 +149,8 @@ $(deb_package): $(base_package)
 		--input-type deb \
 		--force \
 		--depends cron \
+		--conflicts do-agent \
+		--replaces do-agent \
 		--deb-group nobody \
 		--deb-user nogroup \
 		-p $@ \
@@ -166,8 +166,10 @@ $(rpm_package): $(base_package)
 	$(mkdir)
 	@$(fpm) \
 		--output-type rpm \
-		--depends cronie \
 		--input-type deb \
+		--depends cronie \
+		--conflicts do-agent \
+		--replaces do-agent \
 		--rpm-group nobody \
 		--rpm-user nobody \
 		--force \
