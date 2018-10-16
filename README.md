@@ -46,12 +46,11 @@ The Metrics Agent can be installed by running
 curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/metrics-agent-install.sh | sudo bash
 ```
 
-If you already have installed `do-agent` you should see a conflict error. You can use our migration script to replace `do-agent` with `metrics-agent`
-```
-curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/metrics-agent-migrate.sh | sudo bash
-```
+If you already have `do-agent` installed you should see it removed during the install process.
 
-or run `apt remove do-agent` / `yum remove do-agent` and then run `metrics-agent-install.sh`
+or you may manually remove it first by running
+ 
+ `apt remove do-agent` / `yum remove do-agent` and then running `metrics-agent-install.sh`
 
 ### Uninstall
 
