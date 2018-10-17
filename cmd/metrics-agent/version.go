@@ -29,14 +29,14 @@ import (
 var (
 	version   string
 	revision  string
-	branch    string
 	buildDate string
 	goVersion = runtime.Version()
 )
 
 var versionTmpl = template.Must(template.New("version").Parse(`
-{{ .name }} (DigitalOcean Metrics Agent)  {{ .version }}
-Branch:      {{.branch}}
+{{ .name }} (DigitalOcean Metrics Agent)
+
+Version:     {{.version}}
 Revision:    {{.revision}}
 Build Date:  {{.buildDate}}
 Go Version:  {{.goVersion}}
@@ -50,12 +50,10 @@ For a copy, see <https://www.apache.org/licenses/LICENSE-2.0.html>.
 
 var buildInfo = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Namespace: "metrics_agent",
+		// Namespace has to be sonar or it will get filtered
+		Namespace: "sonar",
 		Name:      "build_info",
-		Help: fmt.Sprintf(
-			"A metric with a constant '1' value labeled by version from which %s was built.",
-			"metrics_agent",
-		),
+		Help:      "A metric with a constant '1' value labeled by version from which the agent was built.",
 	},
 	[]string{"version", "revision"},
 ).WithLabelValues(version, revision)
@@ -68,7 +66,6 @@ func init() {
 			versionTmpl.Execute(os.Stdout, map[string]string{
 				"name":      "metrics-agent",
 				"version":   version,
-				"branch":    branch,
 				"revision":  revision,
 				"buildDate": buildDate,
 				"goVersion": goVersion,
