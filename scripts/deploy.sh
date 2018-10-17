@@ -127,7 +127,8 @@ function deploy_spaces() {
 	aws s3 \
 		--endpoint-url https://nyc3.digitaloceanspaces.com \
 		cp ./target/scripts/metrics-agent-install.sh \
-		s3://insights/metrics-agent-install.sh
+		s3://insights/metrics-agent-install.sh \
+		--acl public-read
 }
 
 
