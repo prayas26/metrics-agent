@@ -31,9 +31,9 @@ func NewHTTP(timeout time.Duration) *http.Client {
 	return &http.Client{
 		Timeout: timeout,
 		Transport: &http.Transport{
-			Dial: (&net.Dialer{
+			DialContext: (&net.Dialer{
 				Timeout: timeout,
-			}).Dial,
+			}).DialContext,
 			TLSHandshakeTimeout:   timeout,
 			ResponseHeaderTimeout: timeout,
 			DisableKeepAlives:     true,
