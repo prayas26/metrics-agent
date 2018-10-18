@@ -59,3 +59,6 @@ Metrics Agent can be uninstalled with your distribution's package manager
 `apt remove metrics-agent` for Debian based distros
 
 `yum remove metrics-agent` for RHEL based distros
+
+## Report an Issue
+Feel free to [open an issue](https://github.com/digitalocean/metrics-agent/issues/new) if one does not [already exist](https://github.com/digitalocean/metrics-agent/issues)
