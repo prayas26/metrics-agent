@@ -2,7 +2,7 @@
 set -ueo pipefail
 # set -x
 
-UBUNTU_VERSIONS="trusty utopic vivid wily xenial yakkety zesty artful bionic"
+UBUNTU_VERSIONS="trusty utopic vivid wily xenial yakkety zesty artful bionic cosmic"
 DEBIAN_VERSIONS="wheezy jessie stretch buster"
 RHEL_VERSIONS="6 7"
 FEDORA_VERSIONS="27 28"

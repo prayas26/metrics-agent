@@ -14,7 +14,7 @@ OS=$(uname | tr '[:upper:]' '[:lower:]')
 TAG=metrics-agent-uat-${USER}
 SUPPORTED_IMAGES="centos-6-x32 centos-6-x64 centos-7-x64 debian-8-x32 debian-8-x64 \
 	debian-9-x64 fedora-27-x64 fedora-28-x64 ubuntu-14-04-x32 ubuntu-14-04-x64 \
-	ubuntu-16-04-x32 ubuntu-16-04-x64 ubuntu-18-04-x64"
+	ubuntu-16-04-x32 ubuntu-16-04-x64 ubuntu-18-04-x64 ubuntu-18-10-x64"
 
 JONES_SSH_FINGERPRINT="a1:bc:00:38:56:1f:d2:b1:8e:0d:4f:9c:f0:dd:66:6d"
 THOR_SSH_FINGERPRINT="c6:c6:01:e8:71:0a:58:02:2c:b3:e5:95:0e:b1:46:06"
