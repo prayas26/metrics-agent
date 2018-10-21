@@ -1,61 +1,55 @@
-# DigitalOcean Metrics Agent
+# captainslog [![Build Status](https://travis-ci.org/digitalocean/captainslog.svg?branch=master)](https://travis-ci.org/digitalocean/captainslog) [![Doc Status](https://godoc.org/github.com/digitalocean/captainslog?status.png)](https://godoc.org/github.com/digitalocean/captainslog)
 
-**WIP Notice**
-
-DigitalOcean Metrics Agent is a work in progress
-
-[![Build
-Status](https://travis-ci.org/digitalocean/metrics-agent.svg?branch=master)](https://travis-ci.org/digitalocean/metrics-agent)
-[![Go Report Card](https://goreportcard.com/badge/github.com/digitalocean/metrics-agent)](https://goreportcard.com/report/github.com/digitalocean/metrics-agent)
-[![Coverage Status](https://coveralls.io/repos/github/digitalocean/metrics-agent/badge.svg?branch=feat%2Fadd-coveralls-report)](https://coveralls.io/github/digitalocean/metrics-agent?branch=feat%2Fadd-coveralls-report)
-
-## Overview
-The DigialOcean Metrics agent is a drop in replacement and improvement for [do-agent](https://github.com/digitalocean/do-agent). The Metrics Agent enables droplet metrics to be gathered and sent to DigitalOcean to provide resource usage graphs and alerting. Rather than use `procfs` to obtain resource usage data, we use [node_exporter](https://github.com/prometheus/node_exporter).
-
-Metrics Agent currently supports:
-- Ubuntu 14.04+
-- Debian 8+
-- Fedora 27+
-- CentOS 6+
-
-## Development
-
-### Requirements
-
-- [go](https://golang.org/dl/)
-- [golang/dep](https://github.com/golang/dep#installation)
-- [GNU Make](https://www.gnu.org/software/make/)
-- [Go Meta Linter](https://github.com/alecthomas/gometalinter#installing)
-
+Construct, emit, and parse Syslog messages.
+# Usage
+## Create a captainslog.SyslogMsg from RF3164 bytes:
+```go
+b := []byte("<191>2006-01-02T15:04:05.999999-07:00 host.example.org test: engage\n")
+msg, err := captainslog.NewSyslogMsgFromBytes(b)
+if err != nil {
+    panic(err)
+}
 ```
-git clone git@github.com:digitalocean/metrics-agent.git \
-        $GOPATH/src/github.com/digitalocean/metrics-agent
-cd !$
+## Create a captainslog.SyslogMsg by setting its fields:
+```go
+msg := captainslog.NewSyslogMsg()
+msg.SetFacility(captainslog.Local7)
+msg.SetSeverity(captainslog.Err)
 
-# build the project
-make
+msgTime, err := time.Parse("2006 Jan 02 15:04:05", "2017 Aug 15 16:18:34")
+if err != nil {
+    t.Error(err)
+}
 
-# add dependencies
-dep ensure -v -add <import path>
+msg.SetTime(msgTime)
+msg.SetProgram("myprogram")
+msg.SetPid("12")
+msg.SetHost("host.example.com")
 ```
+captainslog.NewSyslogMsg accepts the following functional options (note: these may also be passed to SyslogMsg.Bytes() and SyslogMsg.String):
 
-## Installation
-The Metrics Agent can be installed by running
+**captainslog.OptionUseLocalFormat** tells SyslogMsg.String() and SyslogMsg.Byte() to format the message to be compatible with writing to /dev/log rather than over the wire.
 
+**captainslog.OptionUseRemoteFormat** tells SyslogMsg.String() and SyslogMsg.Byte() to use wire format for the message instead of local format.
+## Serialize a captainslog.SyslogMsg to RFC3164 bytes:
+```go
+b := msg.Bytes()
 ```
-curl -sL https://insights.nyc3.cdn.digitaloceanspaces.com/metrics-agent-install.sh | sudo bash
+## Create a captainslog.Parser and parse a message:
+```go
+p := captainslog.NewParser(<options>)
+msg, err := p.ParseBytes([]byte(line)
 ```
+Both captainslog.NewSyslogMsgFromBytes and captainslog.NewParser accept the following functional arguments:
 
-If you already have `do-agent` installed you should see it removed during the install process.
+**captainslog.OptionNoHostname** sets the parser to not expect the hostname as part of the syslog message, and instead ask the host for its hostname.
 
-or you may manually remove it first by running
- 
- `apt remove do-agent` / `yum remove do-agent` and then running `metrics-agent-install.sh`
+**captainslog.OptionDontParseJSON** sets the parser to not parse JSON in the content field of the message. A subsequent call to SyslogMsg.String() or SyslogMsg.Bytes() will then use SyslogMsg.Content for the content field, unless SyslogMsg.JSONValues have been added since the message was originally parsed. If SyslogMsg.JSONValues have been added, the call to SyslogMsg.String() or SyslogMsg.Bytes() will then parse the JSON, and merge the results with the keys in SyslogMsg.JSONVaues.
 
-### Uninstall
+**captainslog.OptionLocation** is a helper function to configure the parser to parse time in the given timezone, If the parsed time contains a valid timezone identifier this takes precedence. Default timezone is UTC.
+## Contribution Guidelines
+We use the [Collective Code Construction Contract](http://rfc.zeromq.org/spec:22) for the development of captainslog. For details, see [CONTRIBUTING.md](https://github.com/digitalocean/captainslog/blob/master/CONTRIBUTING.md).
+## License
+Copyright 2016 DigitalOcean
 
-Metrics Agent can be uninstalled with your distribution's package manager
-
-`apt remove metrics-agent` for Debian based distros
-
-`yum remove metrics-agent` for RHEL based distros
+Captainslog is released under the [Mozilla Public License, version 2.0](https://github.com/digitalocean/captainslog/blob/master/LICENSE)
